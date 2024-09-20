@@ -4,7 +4,7 @@ import '../model/quiz_model.dart';
 import 'quiz_screen.dart';
 
 class CategoryScreen extends StatelessWidget {
-  final List<String> categories = ['Science', 'History', 'Math'];
+  final List<String> categories = ['Technology', 'History', 'AI', 'Culture'];
   final DBController _dbController = DBController();
 
   void _selectCategory(BuildContext context, String category) async {
