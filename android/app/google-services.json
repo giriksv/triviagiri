@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "35636239430",
+    "project_id": "kccr-ee606",
+    "storage_bucket": "kccr-ee606.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:35636239430:android:981e3e019fd5d377cb3e47",
+        "android_client_info": {
+          "package_name": "com.zealtown.authentication.authentication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "35636239430-erb0iqnjt51s9ks4v115d1liga45oovh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zealtown.authentication.authentication",
+            "certificate_hash": "033a02d097281f784133c595419fb528f9a28919"
+          }
+        },
+        {
+          "client_id": "35636239430-e47ef9360pg4v1cgjbv7ah28nu2haupe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDiQ0G76o7qNdWhU54Tn_V7Rus4frjgPOY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "35636239430-e47ef9360pg4v1cgjbv7ah28nu2haupe.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
