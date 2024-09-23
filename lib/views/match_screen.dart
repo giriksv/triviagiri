@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'user_profile_screen.dart'; // Ensure this import is correct
+import 'comparison_screen.dart'; // Ensure this import is correct
 
 class MatchScreen extends StatelessWidget {
   @override

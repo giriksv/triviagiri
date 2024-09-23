@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'settings_screen.dart';
 import '../controller/db_controller.dart';
 import '../controller/quiz_controller.dart';
@@ -24,7 +24,25 @@ class _QuizScreenState extends State<QuizScreen> {
   bool _isAnswerSubmitted = false;
   String? _correctAnswer;
 
-  void _checkAnswer() {
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentQuestionIndex();
+  }
+
+  Future<void> _loadCurrentQuestionIndex() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _currentQuestionIndex = prefs.getInt('${widget.category}_currentQuestionIndex') ?? 0;
+    });
+  }
+
+  Future<void> _saveCurrentQuestionIndex() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('${widget.category}_currentQuestionIndex', _currentQuestionIndex);
+  }
+
+  void _checkAnswer() async {
     final userEmail = FirebaseAuth.instance.currentUser?.email;
     final correctAnswer = widget.quizzes[_currentQuestionIndex].correctAnswer;
 
@@ -37,7 +55,7 @@ class _QuizScreenState extends State<QuizScreen> {
 
     if (userEmail != null) {
       if (_selectedAnswer == correctAnswer) {
-        _quizController.addPoints(userEmail, 5);
+        await _quizController.addPoints(userEmail, 5);
         _moveToNextQuestion();
       } else {
         setState(() {
@@ -59,25 +77,37 @@ class _QuizScreenState extends State<QuizScreen> {
         _correctAnswer = null;
         _selectedAnswer = null;
       });
+      _saveCurrentQuestionIndex(); // Save index after moving to the next question
     } else {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Quiz Completed'),
-            content: Text('You have completed the quiz!'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('Finish'),
-              ),
-            ],
-          );
-        },
-      );
+      _showCompletionDialog();
     }
+  }
+
+  void _showCompletionDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Quiz Completed'),
+          content: Text('You have completed the quiz!'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _resetQuiz(); // Reset quiz if needed
+              },
+              child: Text('Finish'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _resetQuiz() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('${widget.category}_currentQuestionIndex'); // Reset index for the current category
+    Navigator.pop(context); // Go back to the previous screen
   }
 
   void _showCorrectAnswerDialog() {
@@ -107,16 +137,14 @@ class _QuizScreenState extends State<QuizScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Quiz'),
+        title: Text('Quiz: ${widget.category}'),
         actions: [
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => SettingsScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => SettingsScreen()),
               );
             },
           ),
@@ -132,8 +160,8 @@ class _QuizScreenState extends State<QuizScreen> {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),
-            for (var option in [quiz.optionA, quiz.optionB, quiz.optionC, quiz.optionD])
-              ListTile(
+            ...[quiz.optionA, quiz.optionB, quiz.optionC, quiz.optionD].map((option) {
+              return ListTile(
                 title: Text(option),
                 leading: Radio<String>(
                   value: option,
@@ -144,7 +172,13 @@ class _QuizScreenState extends State<QuizScreen> {
                     });
                   },
                 ),
-              ),
+                tileColor: _isAnswerSubmitted && option == _correctAnswer
+                    ? Colors.green.withOpacity(0.3)
+                    : _isAnswerSubmitted && option == _selectedAnswer
+                    ? Colors.red.withOpacity(0.3)
+                    : null,
+              );
+            }).toList(),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: _checkAnswer,

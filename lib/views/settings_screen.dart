@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../profile_screen.dart';
+import 'profile_screen.dart';
 import 'match_screen.dart';
-import 'dailyrewards.dart';
+import 'daily_rewards.dart';
 
 class SettingsScreen extends StatelessWidget {
   Future<Map<String, dynamic>> _getUserData() async {
