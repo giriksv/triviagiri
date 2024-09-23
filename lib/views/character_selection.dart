@@ -1,25 +1,35 @@
 import 'package:flutter/material.dart';
 import '../controller/db_controller.dart';
 import 'category_screen.dart';
-import '../controller/auth_controller.dart';
+import '../model/user_model.dart'; // Assuming you have UserModel
 
 class CharacterSelectionScreen extends StatelessWidget {
   final String email;
+  final String name; // Added name parameter for greeting
 
-  CharacterSelectionScreen({required this.email});
+  CharacterSelectionScreen({
+    required this.email,
+    required this.name,
+  });
 
   final List<String> characters = ['Character 1', 'Character 2', 'Character 3'];
   final DBController _dbController = DBController();
 
   void _selectCharacter(BuildContext context, String character) async {
-    await _dbController.insertUserData(email, character);
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CategoryScreen()));
+    UserModel user = UserModel(email: email, character: character, name: name); // Create user model
+    await _dbController.insertUserData(user); // Insert user data into Firestore
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => CategoryScreen(email: '',)),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Select Character')),
+      appBar: AppBar(
+        title: Text('Select Character'),
+      ),
       body: ListView.builder(
         itemCount: characters.length,
         itemBuilder: (context, index) {

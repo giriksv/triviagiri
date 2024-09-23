@@ -1,43 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import '../controller/auth_controller.dart';
+import '../controller/db_controller.dart';
+import '../model/user_model.dart';
 import 'character_selection.dart';
 
-class SignupScreen extends StatelessWidget {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+class SignupScreen extends StatefulWidget {
+  @override
+  _SignupScreenState createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignupScreen> {
+  final AuthController _authController = AuthController();
+  final DBController _dbController = DBController();
+  bool _isLoading = false;
 
   Future<void> signInWithGoogle(BuildContext context) async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+    setState(() {
+      _isLoading = true; // Show loading indicator
+    });
 
-    if (googleUser != null) {
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    try {
+      // Sign in with Google and get user details
+      UserModel? user = await _authController.signInWithGoogle();
 
-      if (googleAuth.idToken != null) {
-        final credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
+      if (user != null) {
+        // Store user data in Firestore
+        await _dbController.insertUserData(user);
+
+        print("User signed in: ${user.email}");
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CharacterSelectionScreen(
+              email: user.email,
+              name: user.name, // Pass the name here
+            ),
+          ),
         );
-
-        try {
-          UserCredential userCredential = await _auth.signInWithCredential(credential);
-          User? user = userCredential.user;
-
-          // Only store the email if user is not already in Firestore
-          if (user != null) {
-            // Navigate to Character Selection Screen
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => CharacterSelectionScreen(email: user.email ?? '')),
-            );
-          }
-        } catch (e) {
-          // Handle error
-          print("Error signing in with Google: $e");
-        }
+      } else {
+        throw Exception("Error: User not signed in.");
       }
-    } else {
-      print("Google sign-in was canceled.");
+    } catch (e) {
+      print("Error during sign-in: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error signing in: ${e.toString()}")),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false; // Hide loading indicator
+      });
     }
   }
 
@@ -46,11 +57,18 @@ class SignupScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Sign Up')),
       body: Center(
-        child: ElevatedButton(
-          onPressed: () async {
-            await signInWithGoogle(context);
-          },
-          child: Text('Sign in with Google'),
+        child: _isLoading
+            ? CircularProgressIndicator()
+            : Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () async {
+                await signInWithGoogle(context);
+              },
+              child: Text('Continue with Google'),
+            ),
+          ],
         ),
       ),
     );

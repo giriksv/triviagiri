@@ -34,10 +34,22 @@ android {
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
     }
+    signingConfigs {
+        release {
+            keyAlias 'keyalias'
+            keyPassword 'Zt@2002'
+            storeFile file('D:/authentication/android/release-key.jks')
+            storePassword 'Zt@2002'
+        }
+    }
 
     buildTypes {
         release {
             signingConfig = signingConfigs.debug // Update this for release build
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+
         }
     }
 }

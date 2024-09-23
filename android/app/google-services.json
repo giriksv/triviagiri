@@ -14,11 +14,19 @@
       },
       "oauth_client": [
         {
-          "client_id": "35636239430-erb0iqnjt51s9ks4v115d1liga45oovh.apps.googleusercontent.com",
+          "client_id": "35636239430-aul51ng1ggtnm80pf5v3nf57emiaf9de.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.zealtown.authentication.authentication",
             "certificate_hash": "033a02d097281f784133c595419fb528f9a28919"
+          }
+        },
+        {
+          "client_id": "35636239430-v88pnt221hj437r6vck6smqcanc406r6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zealtown.authentication.authentication",
+            "certificate_hash": "2fe3aab37a53be5fcc48273590413e87972da999"
           }
         },
         {
@@ -37,6 +45,13 @@
             {
               "client_id": "35636239430-e47ef9360pg4v1cgjbv7ah28nu2haupe.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "35636239430-jrk9gm03sib41m6fsqi970h4f3kqmj4f.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.zealtown.authentication.authentication"
+              }
             }
           ]
         }

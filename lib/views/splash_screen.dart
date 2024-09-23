@@ -5,6 +5,7 @@ import '../model/quiz_model.dart';
 import '../services/storage_service.dart';
 import 'category_screen.dart';
 import 'signup_screen.dart';
+import '../controller/auth_controller.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -14,6 +15,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   final DBController _dbController = DBController();
   final StorageService _storageService = StorageService();
+  final AuthController _authController = AuthController();
 
   @override
   void initState() {
@@ -22,22 +24,26 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initApp() async {
-    // Perform background operations
     await _fetchAndStoreQuizzes();
-
-    // Wait for at least 3 seconds before navigating
     await Future.delayed(Duration(seconds: 3));
 
-    // Check if the user is logged in
     User? user = FirebaseAuth.instance.currentUser;
+
     if (user != null) {
-      // User is logged in, navigate to the CategoryScreen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => CategoryScreen()),
-      );
+      await _authController.refreshGoogleSignInToken();
+      user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => CategoryScreen(email: user!.email!)),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SignupScreen()),
+        );
+      }
     } else {
-      // User is not logged in, navigate to SignUpScreen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => SignupScreen()),
@@ -47,7 +53,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _fetchAndStoreQuizzes() async {
     try {
-      // Fetch quizzes from Firestore and store them in the local database
       List<QuizModel> quizzes = await _storageService.fetchCsvFromStorage('quizcsvfirestorage.csv');
       await _dbController.clearAndCreateDb(quizzes);
     } catch (e) {
@@ -71,7 +76,7 @@ class _SplashScreenState extends State<SplashScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 200, // Width of the loading bar
+                width: 200,
                 child: LinearProgressIndicator(
                   backgroundColor: Colors.white54,
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -92,6 +97,4 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     );
   }
-
-
 }
