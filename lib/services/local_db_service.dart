@@ -2,7 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../model/quiz_model.dart';
 
-class DatabaseService {
+class LocalDatabaseService {
   static Database? _database;
 
   Future<Database> get database async {
@@ -17,7 +17,7 @@ class DatabaseService {
       path,
       version: 1,
       onCreate: (db, version) async {
-        await db.execute(''' 
+        await db.execute('''
           CREATE TABLE quizzes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             question TEXT,
@@ -35,12 +35,14 @@ class DatabaseService {
 
   Future<void> insertQuiz(QuizModel quiz) async {
     final db = await database;
-    await db.insert('quizzes', quiz.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    await db.insert('quizzes', quiz.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<QuizModel>> getQuizzesByCategory(String category) async {
     final db = await database;
-    final maps = await db.query('quizzes', where: 'category = ?', whereArgs: [category]);
+    final maps =
+        await db.query('quizzes', where: 'category = ?', whereArgs: [category]);
     return List.generate(maps.length, (i) {
       return QuizModel.fromMap(maps[i]);
     });
@@ -51,7 +53,7 @@ class DatabaseService {
     // Clear existing quizzes
     await db.execute('DROP TABLE IF EXISTS quizzes');
     // Create a new table
-    await db.execute(''' 
+    await db.execute('''
       CREATE TABLE quizzes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         question TEXT,

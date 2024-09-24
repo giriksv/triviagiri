@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../controller/auth_controller.dart';
-import '../controller/db_controller.dart';
+import '../controller/all_db_controller.dart';
 import '../model/user_model.dart';
 import 'character_selection.dart';
 
@@ -11,7 +11,7 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   final AuthController _authController = AuthController();
-  final DBController _dbController = DBController();
+  final AllDBController _dbController = AllDBController();
   bool _isLoading = false;
 
   Future<void> signInWithGoogle(BuildContext context) async {
@@ -60,16 +60,16 @@ class _SignupScreenState extends State<SignupScreen> {
         child: _isLoading
             ? CircularProgressIndicator()
             : Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () async {
-                await signInWithGoogle(context);
-              },
-              child: Text('Continue with Google'),
-            ),
-          ],
-        ),
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      await signInWithGoogle(context);
+                    },
+                    child: Text('Continue with Google'),
+                  ),
+                ],
+              ),
       ),
     );
   }

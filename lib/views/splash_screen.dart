@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../controller/db_controller.dart';
+import '../controller/all_db_controller.dart';
 import '../model/quiz_model.dart';
 import '../services/storage_service.dart';
 import 'category_screen.dart';
@@ -13,7 +13,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final DBController _dbController = DBController();
+  final AllDBController _dbController = AllDBController();
   final StorageService _storageService = StorageService();
   final AuthController _authController = AuthController();
 
@@ -35,7 +35,8 @@ class _SplashScreenState extends State<SplashScreen> {
       if (user != null) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => CategoryScreen(email: user!.email!)),
+          MaterialPageRoute(
+              builder: (context) => CategoryScreen(email: user!.email!)),
         );
       } else {
         Navigator.pushReplacement(
@@ -53,7 +54,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _fetchAndStoreQuizzes() async {
     try {
-      List<QuizModel> quizzes = await _storageService.fetchCsvFromStorage('quizcsvfirestorage.csv');
+      List<QuizModel> quizzes =
+          await _storageService.fetchCsvFromStorage('quizcsvfirestorage.csv');
       await _dbController.clearAndCreateDb(quizzes);
     } catch (e) {
       print('Error fetching quizzes: $e');

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import '../utils.dart';
 import 'signup_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -27,6 +28,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Use the getCharacterGif method from utils.dart
+    String? gifPath = CharacterUtils.getCharacterGif(widget.selectedCharacter);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
@@ -35,10 +39,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Conditionally display the character's GIF or a fallback avatar
             CircleAvatar(
               radius: 50,
               backgroundColor: Colors.grey[200],
-              // Add image if available: backgroundImage: NetworkImage(widget.url),
+              child: gifPath != null
+                  ? Image.asset(gifPath)
+                  : Icon(Icons.person, size: 50), // Fallback if GIF not found
             ),
             SizedBox(height: 20),
             Text(
@@ -64,7 +71,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => SignupScreen()),
-                      (route) => false, // Remove all previous routes
+                  (route) => false, // Remove all previous routes
                 );
               },
               child: Text("Logout"),

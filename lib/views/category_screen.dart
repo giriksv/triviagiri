@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import '../controller/db_controller.dart';
+import '../controller/all_db_controller.dart';
 import '../model/quiz_model.dart';
 import 'quiz_screen.dart';
 
 class CategoryScreen extends StatefulWidget {
   final String email; // Add this to accept email
 
-  CategoryScreen({required this.email}); // Modify the constructor to accept email
+  CategoryScreen(
+      {required this.email}); // Modify the constructor to accept email
 
   @override
   _CategoryScreenState createState() => _CategoryScreenState();
@@ -14,7 +15,7 @@ class CategoryScreen extends StatefulWidget {
 
 class _CategoryScreenState extends State<CategoryScreen> {
   final List<String> categories = ['Technology', 'History', 'AI', 'Culture'];
-  final DBController _dbController = DBController();
+  final AllDBController _dbController = AllDBController();
 
   @override
   void initState() {
@@ -28,10 +29,14 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   void _selectCategory(BuildContext context, String category) async {
     // Navigate to quiz screen and fetch quizzes based on category
-    List<QuizModel> quizzes = await _dbController.getQuizzesByCategory(category);
+    List<QuizModel> quizzes =
+        await _dbController.getQuizzesByCategory(category);
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => QuizScreen(quizzes: quizzes, category: category)), // Pass the category to QuizScreen
+      MaterialPageRoute(
+          builder: (context) => QuizScreen(
+              quizzes: quizzes,
+              category: category)), // Pass the category to QuizScreen
     );
   }
 

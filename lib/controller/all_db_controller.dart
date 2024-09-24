@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../model/user_model.dart';
 import '../model/quiz_model.dart';
-import '../services/db_service.dart';
+import '../services/local_db_service.dart';
 
-class DBController {
-  final DatabaseService _dbService = DatabaseService();
+class AllDBController {
+  final LocalDatabaseService _dbService = LocalDatabaseService();
 
   Future<void> insertUserData(UserModel user) async {
     try {

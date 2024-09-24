@@ -12,7 +12,8 @@ class MatchScreen extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users')
-            .orderBy('points', descending: true) // Order by points in descending order
+            .orderBy('points',
+                descending: true) // Order by points in descending order
             .limit(5) // Limit to top 5 users
             .snapshots(), // Use snapshots for real-time updates
         builder: (context, snapshot) {
@@ -41,19 +42,28 @@ class MatchScreen extends StatelessWidget {
               }
 
               // Safely check for 'name' and 'points' fields
-              var userData = user.data() as Map<String, dynamic>?; // Cast to Map
+              var userData =
+                  user.data() as Map<String, dynamic>?; // Cast to Map
               String userName = userData?['name'] ?? 'Unknown User';
               String userPoints = userData?['points']?.toString() ?? '0';
 
               return ListTile(
                 title: Text(userName),
                 subtitle: Text('Points: $userPoints'),
+                trailing: Text(
+                  (index + 1).toString(), // Display the ranking number here
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18, // Adjust font size to your liking
+                  ),
+                ),
                 onTap: () {
                   // Navigate to UserProfileScreen
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => UserProfileScreen(otherUserEmail: user['email']),
+                      builder: (context) =>
+                          ComparisonScreen(otherUserEmail: user['email']),
                     ),
                   );
                 },

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'settings_screen.dart';
-import '../controller/db_controller.dart';
+import '../controller/all_db_controller.dart';
 import '../controller/quiz_controller.dart';
 import '../model/quiz_model.dart';
 
@@ -18,7 +18,7 @@ class QuizScreen extends StatefulWidget {
 
 class _QuizScreenState extends State<QuizScreen> {
   final QuizController _quizController = QuizController();
-  final DBController _dbController = DBController();
+  final AllDBController _dbController = AllDBController();
   int _currentQuestionIndex = 0;
   String? _selectedAnswer;
   bool _isAnswerSubmitted = false;
@@ -33,13 +33,15 @@ class _QuizScreenState extends State<QuizScreen> {
   Future<void> _loadCurrentQuestionIndex() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _currentQuestionIndex = prefs.getInt('${widget.category}_currentQuestionIndex') ?? 0;
+      _currentQuestionIndex =
+          prefs.getInt('${widget.category}_currentQuestionIndex') ?? 0;
     });
   }
 
   Future<void> _saveCurrentQuestionIndex() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('${widget.category}_currentQuestionIndex', _currentQuestionIndex);
+    await prefs.setInt(
+        '${widget.category}_currentQuestionIndex', _currentQuestionIndex);
   }
 
   void _checkAnswer() async {
@@ -106,7 +108,8 @@ class _QuizScreenState extends State<QuizScreen> {
 
   void _resetQuiz() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('${widget.category}_currentQuestionIndex'); // Reset index for the current category
+    await prefs.remove(
+        '${widget.category}_currentQuestionIndex'); // Reset index for the current category
     Navigator.pop(context); // Go back to the previous screen
   }
 
@@ -160,7 +163,8 @@ class _QuizScreenState extends State<QuizScreen> {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),
-            ...[quiz.optionA, quiz.optionB, quiz.optionC, quiz.optionD].map((option) {
+            ...[quiz.optionA, quiz.optionB, quiz.optionC, quiz.optionD]
+                .map((option) {
               return ListTile(
                 title: Text(option),
                 leading: Radio<String>(
@@ -175,8 +179,8 @@ class _QuizScreenState extends State<QuizScreen> {
                 tileColor: _isAnswerSubmitted && option == _correctAnswer
                     ? Colors.green.withOpacity(0.3)
                     : _isAnswerSubmitted && option == _selectedAnswer
-                    ? Colors.red.withOpacity(0.3)
-                    : null,
+                        ? Colors.red.withOpacity(0.3)
+                        : null,
               );
             }).toList(),
             SizedBox(height: 20),

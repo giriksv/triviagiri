@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "35636239430-4rpgpntlhv3kat6qfvnq689h3cpthjt3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zealtown.authentication.authentication",
+            "certificate_hash": "f58ba6adad9793f036b036d880606198ecca7376"
+          }
+        },
+        {
           "client_id": "35636239430-aul51ng1ggtnm80pf5v3nf57emiaf9de.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
