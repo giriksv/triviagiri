@@ -1,4 +1,4 @@
-// utils.dart
+// gifutils.dart
 class CharacterUtils {
   // A map of character to their respective GIFs
   static final Map<String, String> characterGifs = {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../utils.dart';
+import '../utils/gifutils.dart';
 
 class ComparisonScreen extends StatefulWidget {
   final String otherUserEmail;

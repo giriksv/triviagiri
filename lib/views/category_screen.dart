@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../controller/all_db_controller.dart';
 import '../model/quiz_model.dart';
+import '../utils/categoryutils.dart';
 import 'quiz_screen.dart';
 
 class CategoryScreen extends StatefulWidget {
@@ -14,7 +15,7 @@ class CategoryScreen extends StatefulWidget {
 }
 
 class _CategoryScreenState extends State<CategoryScreen> {
-  final List<String> categories = ['Technology', 'History', 'AI', 'Culture'];
+  final List<String> _categories = CategoryUtils.categories;
   final AllDBController _dbController = AllDBController();
 
   @override
@@ -45,11 +46,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
     return Scaffold(
       appBar: AppBar(title: Text('Select Category')),
       body: ListView.builder(
-        itemCount: categories.length,
+        itemCount: _categories.length,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(categories[index]),
-            onTap: () => _selectCategory(context, categories[index]),
+            title: Text(_categories[index]),
+            onTap: () => _selectCategory(context, _categories[index]),
           );
         },
       ),

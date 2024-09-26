@@ -4,6 +4,7 @@ import '../controller/all_db_controller.dart';
 import '../model/quiz_model.dart';
 import '../services/storage_service.dart';
 import 'category_screen.dart';
+import 'modeselection_screen.dart';
 import 'signup_screen.dart';
 import '../controller/auth_controller.dart';
 
@@ -36,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (context) => CategoryScreen(email: user!.email!)),
+              builder: (context) => ModeSelectionScreen(email: user!.email!)),
         );
       } else {
         Navigator.pushReplacement(

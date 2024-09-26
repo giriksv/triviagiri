@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../controller/all_db_controller.dart';
-import '../utils.dart';
+import '../utils/gifutils.dart';
 import 'category_screen.dart';
 import '../model/user_model.dart';
+import 'modeselection_screen.dart';
 
 class CharacterSelectionScreen extends StatelessWidget {
   final String email;
@@ -23,7 +24,7 @@ class CharacterSelectionScreen extends StatelessWidget {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => CategoryScreen(email: email),
+        builder: (context) => ModeSelectionScreen(email: email),
       ),
     );
   }

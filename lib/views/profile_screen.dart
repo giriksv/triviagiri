@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import '../utils.dart';
+import '../utils/gifutils.dart';
 import 'signup_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -28,7 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Use the getCharacterGif method from utils.dart
+    // Use the getCharacterGif method from gifutils.dart
     String? gifPath = CharacterUtils.getCharacterGif(widget.selectedCharacter);
 
     return Scaffold(
