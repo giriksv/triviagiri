@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'multiplayer_quiz_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../utils/roomdeletion_utils.dart'; // Import your room deletion utilities
+import 'multiplayer_quiz_screen.dart';
 
 class WaitingScreen extends StatefulWidget {
   final String roomName;
@@ -22,17 +23,16 @@ class WaitingScreen extends StatefulWidget {
 }
 
 class _WaitingScreenState extends State<WaitingScreen> {
-  late Timer _checkRoomTimer;
   late Timer _countdownTimer;
   int _countdown = 10;
   bool _isRoomFull = false;
-  String userEmail = ''; // Variable to hold the user email
+  String userEmail = '';
+  String? category; // Store the category from Firestore
 
   @override
   void initState() {
     super.initState();
-    _getUserEmail(); // Get the user email when the screen initializes
-    _checkRoomStatus();
+    _getUserEmail();
   }
 
   Future<void> _getUserEmail() async {
@@ -40,26 +40,13 @@ class _WaitingScreenState extends State<WaitingScreen> {
     setState(() {
       userEmail = user?.email ?? '';
     });
-    print("User Email: $userEmail");
-  }
-
-  Future<void> _checkRoomStatus() async {
-    _checkRoomTimer = Timer.periodic(Duration(seconds: 2), (timer) async {
-      DocumentSnapshot roomSnapshot =
-      await FirebaseFirestore.instance.collection('rooms').doc(widget.roomId).get();
-      List currentUsers = roomSnapshot['users'];
-
-      print("Current users in the room: ${currentUsers.length}");
-      if (currentUsers.length >= widget.maxUsers) {
-        timer.cancel();
-        _startCountdown();
-      }
-    });
   }
 
   void _startCountdown() {
+    if (_isRoomFull) return; // Prevent multiple countdowns
+
     setState(() {
-      _isRoomFull = true;
+      _isRoomFull = true; // Indicate the room is full
     });
 
     _countdownTimer = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -69,14 +56,13 @@ class _WaitingScreenState extends State<WaitingScreen> {
         });
       } else {
         timer.cancel();
-        // Navigate to the MultiplayerQuizScreen with proper parameters
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => MultiplayerQuizScreen(
               roomId: widget.roomId,
-              category: '', // Replace with actual category if available
-              userEmail: userEmail, // Use the user email obtained
+              category: category ?? '', // Use the fetched category
+              userEmail: userEmail,
             ),
           ),
         );
@@ -84,38 +70,82 @@ class _WaitingScreenState extends State<WaitingScreen> {
     });
   }
 
+  void _checkRoomFull(List<dynamic> currentUsers) {
+    if (currentUsers.length >= widget.maxUsers && !_isRoomFull) {
+      // Delay the countdown to avoid setState() in the middle of the build phase
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _startCountdown();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Waiting for Players"),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Room: ${widget.roomName}',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Room ID: ${widget.roomId}',
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Waiting for players to join...',
-              style: TextStyle(fontSize: 20),
-            ),
-            ...widget.members.map((member) => Text(member['name'])).toList(),
-            SizedBox(height: 20),
-            if (_isRoomFull)
-              Text(
-                'Game begins in $_countdown seconds...',
-                style: TextStyle(fontSize: 18, color: Colors.red),
+    return WillPopScope(
+      onWillPop: () async {
+        // Show the leave room dialog when back is pressed
+        await showLeaveRoomDialog(
+          context: context,
+          userEmail: userEmail,
+          roomId: widget.roomId,
+          email: userEmail, userName: '', // Use the email of the current user
+        );
+        return false; // Prevent default back navigation
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Waiting for Players"),
+        ),
+        body: StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('rooms')
+              .doc(widget.roomId)
+              .snapshots(), // Listen to real-time updates in the room document
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+
+            var roomData = snapshot.data!.data() as Map<String, dynamic>;
+            List<dynamic> currentUsers = roomData['users'];
+
+            // Fetch the category from the room document
+            category = roomData['category'];
+
+            // Check if the room is full
+            _checkRoomFull(currentUsers);
+
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Room: ${widget.roomName}',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Room ID: ${widget.roomId}',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Waiting for players to join...',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  ...currentUsers.map((user) => Text(user['name'])).toList(),
+                  SizedBox(height: 20),
+                  if (_isRoomFull)
+                    Text(
+                      'Game begins in $_countdown seconds...',
+                      style: TextStyle(fontSize: 18, color: Colors.red),
+                    ),
+                ],
               ),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -123,8 +153,7 @@ class _WaitingScreenState extends State<WaitingScreen> {
 
   @override
   void dispose() {
-    _checkRoomTimer.cancel();
-    _countdownTimer.cancel();
+    _countdownTimer?.cancel(); // Ensure the timer is cancelled
     super.dispose();
   }
 }

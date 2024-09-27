@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../controller/MultiplayerQuizController.dart';
 import 'ViewResultsScreen.dart';
+import '../utils/roomdeletion_utils.dart'; // Import the room deletion utils for the dialog
 
 class MultiplayerQuizScreen extends StatefulWidget {
   final String roomId;
-  final String category;
+  final String category; // Category passed from the room
   final String userEmail;
 
   MultiplayerQuizScreen({
@@ -25,6 +26,7 @@ class _MultiplayerQuizScreenState extends State<MultiplayerQuizScreen> {
   bool _isQuizCompleted = false;
   String? _selectedAnswer;
   String? _correctAnswer;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -33,13 +35,28 @@ class _MultiplayerQuizScreenState extends State<MultiplayerQuizScreen> {
   }
 
   Future<void> _loadQuestions() async {
-    final questions = await controller.loadQuestions();
     setState(() {
-      _questions = questions;
+      _isLoading = true;
+    });
+
+    // Load all questions from the CSV
+    final allQuestions = await controller.loadQuestions();
+
+    // Filter questions based on the category and limit to the first 5
+    final filteredQuestions = allQuestions
+        .where((question) =>
+    question['category'].toString().trim() == widget.category.trim())
+        .toList()
+        .take(5)
+        .toList(); // Limit to 5 questions
+
+    setState(() {
+      _questions = filteredQuestions;
+      _isLoading = false;
     });
   }
 
-  void _submitAnswer() {
+  void _submitAnswer() async {
     if (_selectedAnswer == null) return;
 
     String correctAnswer = _questions[_currentQuestionIndex]['correctAnswer'];
@@ -47,41 +64,39 @@ class _MultiplayerQuizScreenState extends State<MultiplayerQuizScreen> {
       _correctAnswer = correctAnswer;
     });
 
-    controller.submitAnswer(
-      selectedAnswer: _selectedAnswer!,
-      correctAnswer: correctAnswer,
-      onCorrect: () async {
-        setState(() {
-          _roomPoints += 5;
-        });
+    // Check if the answer is correct
+    if (_selectedAnswer == correctAnswer) {
+      setState(() {
+        _roomPoints += 5; // Add points to the UI immediately
+      });
 
-        await controller.updateRoomPoints(widget.roomId, widget.userEmail);
-        await controller.updateUserPoints(widget.userEmail);
+      // Update points asynchronously without blocking the UI
+      controller.updateRoomPoints(widget.roomId, widget.userEmail).catchError((error) {
+        print('Error updating room points: $error');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update room points. Please try again.')),
+        );
+      });
 
-        if (_currentQuestionIndex < _questions.length - 1) {
-          setState(() {
-            _currentQuestionIndex++;
-            _selectedAnswer = null;
-          });
-        } else {
-          setState(() {
-            _isQuizCompleted = true;
-          });
-        }
-      },
-      onIncorrect: () {
-        if (_currentQuestionIndex < _questions.length - 1) {
-          setState(() {
-            _currentQuestionIndex++;
-            _selectedAnswer = null;
-          });
-        } else {
-          setState(() {
-            _isQuizCompleted = true;
-          });
-        }
-      },
-    );
+      controller.updateUserPoints(widget.userEmail).catchError((error) {
+        print('Error updating user points: $error');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update user points. Please try again.')),
+        );
+      });
+    }
+
+    // Move to the next question immediately
+    if (_currentQuestionIndex < _questions.length - 1) {
+      setState(() {
+        _currentQuestionIndex++;
+        _selectedAnswer = null; // Reset selected answer for the next question
+      });
+    } else {
+      setState(() {
+        _isQuizCompleted = true;
+      });
+    }
   }
 
   Widget _buildOptionButton(String optionText, String optionValue) {
@@ -100,56 +115,73 @@ class _MultiplayerQuizScreenState extends State<MultiplayerQuizScreen> {
     );
   }
 
+  Future<bool> _onWillPop() async {
+    // Show dialog to confirm if the user wants to leave the room
+    await showLeaveRoomDialog(
+      context: context,
+      userEmail: widget.userEmail,
+      roomId: widget.roomId, email: '', userName: '',
+    );
+
+    return Future.value(false); // Prevent default back navigation
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (_questions.isEmpty) {
-      return Scaffold(
+    return WillPopScope(
+      onWillPop: _onWillPop, // Override back button action
+      child: Scaffold(
         appBar: AppBar(
           title: Text("Quiz"),
         ),
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Quiz"),
-      ),
-      body: Column(
-        children: [
-          if (_isQuizCompleted)
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ViewResultsScreen(roomId: widget.roomId)),
-                );
-              },
-              child: Text('View Results'),
-            )
-          else ...[
-            Text("Question ${_currentQuestionIndex + 1}/5"),
-            Text(_questions[_currentQuestionIndex]['question']),
-            _buildOptionButton(
-                _questions[_currentQuestionIndex]['optionA'],
-                _questions[_currentQuestionIndex]['optionA']),
-            _buildOptionButton(
-                _questions[_currentQuestionIndex]['optionB'],
-                _questions[_currentQuestionIndex]['optionB']),
-            _buildOptionButton(
-                _questions[_currentQuestionIndex]['optionC'],
-                _questions[_currentQuestionIndex]['optionC']),
-            _buildOptionButton(
-                _questions[_currentQuestionIndex]['optionD'],
-                _questions[_currentQuestionIndex]['optionD']),
-            ElevatedButton(
-              onPressed: _submitAnswer,
-              child: Text("Next"),
-            ),
+        body: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : _questions.isEmpty
+            ? Center(child: Text('No questions available for this category.'))
+            : Column(
+          children: [
+            if (_isQuizCompleted)
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ViewResultsScreen(
+                          roomId: widget.roomId,
+                          userEmail: widget.userEmail, userName: '',),
+                    ),
+                  );
+                },
+                child: Text('View Results'),
+              )
+            else ...[
+              Text("Question ${_currentQuestionIndex + 1}/${_questions.length}"),
+              SizedBox(height: 20),
+              Text(
+                _questions[_currentQuestionIndex]['question'],
+                style: TextStyle(fontSize: 20),
+              ),
+              SizedBox(height: 20),
+              _buildOptionButton(
+                  _questions[_currentQuestionIndex]['optionA'],
+                  _questions[_currentQuestionIndex]['optionA']),
+              _buildOptionButton(
+                  _questions[_currentQuestionIndex]['optionB'],
+                  _questions[_currentQuestionIndex]['optionB']),
+              _buildOptionButton(
+                  _questions[_currentQuestionIndex]['optionC'],
+                  _questions[_currentQuestionIndex]['optionC']),
+              _buildOptionButton(
+                  _questions[_currentQuestionIndex]['optionD'],
+                  _questions[_currentQuestionIndex]['optionD']),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _selectedAnswer == null ? null : _submitAnswer,
+                child: Text("Next"),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

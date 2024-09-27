@@ -40,7 +40,7 @@ class ModeSelectionScreen extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => RoomTypeScreen(email: email), // Create RoomTypeScreen
+                  builder: (context) => RoomTypeScreen(email: email),
                 ),
               );
             },

@@ -11,7 +11,8 @@ class MultiplayerQuizModel {
       final ref = FirebaseStorage.instance.ref().child(filePath);
       final String csvData = await ref.getData().then((bytes) => utf8.decode(bytes!));
 
-      final List<List<dynamic>> csvTable = CsvToListConverter().convert(csvData);
+      // Parse the CSV file and skip the first row (header)
+      final List<List<dynamic>> csvTable = CsvToListConverter().convert(csvData, eol: '\n').skip(1).toList();
       List<Map<String, dynamic>> questions = [];
 
       for (var row in csvTable) {
@@ -22,10 +23,11 @@ class MultiplayerQuizModel {
           'optionC': row[3],
           'optionD': row[4],
           'correctAnswer': row[5],
+          'category': row[6], // Category is at index 6 in the CSV file
         });
       }
-      questions.shuffle();
-      return questions.take(5).toList();
+      questions.shuffle(); // Shuffle questions for randomness
+      return questions;
     } catch (e) {
       print('Error fetching or parsing CSV: $e');
       return [];
@@ -87,6 +89,35 @@ class MultiplayerQuizModel {
       });
     } catch (error) {
       print("Error updating room points: $error");
+    }
+  }
+
+  Future<void> removeUserAndDeleteRoomIfEmpty(String roomId, String userEmail) async {
+    final roomDocRef = FirebaseFirestore.instance.collection('rooms').doc(roomId);
+
+    try {
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        DocumentSnapshot roomDoc = await transaction.get(roomDocRef);
+
+        if (roomDoc.exists) {
+          List<dynamic> users = roomDoc['users'];
+
+          // Remove the user from the users array
+          users.removeWhere((user) => user['email'] == userEmail);
+
+          if (users.isEmpty) {
+            // If no users are left, delete the room
+            transaction.delete(roomDocRef);
+            print("Room deleted because no users are left.");
+          } else {
+            // Update the users array without the removed user
+            transaction.update(roomDocRef, {'users': users});
+            print("User removed from the room.");
+          }
+        }
+      });
+    } catch (error) {
+      print("Error removing user or deleting room: $error");
     }
   }
 }
