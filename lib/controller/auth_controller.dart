@@ -62,7 +62,7 @@ class AuthController {
             idToken: googleAuth.idToken,
           );
           await _auth.signInWithCredential(credential);
-          print("Google sign-in token refreshed.");
+          print("Google sign-in token.");
         }
       }
     } catch (error) {

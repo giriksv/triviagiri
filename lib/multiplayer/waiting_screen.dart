@@ -88,7 +88,8 @@ class _WaitingScreenState extends State<WaitingScreen> {
           context: context,
           userEmail: userEmail,
           roomId: widget.roomId,
-          email: userEmail, userName: '', // Use the email of the current user
+          email: userEmail,
+          userName: '', // Use the email of the current user
         );
         return false; // Prevent default back navigation
       },
@@ -117,6 +118,10 @@ class _WaitingScreenState extends State<WaitingScreen> {
             // Check if the room is full
             _checkRoomFull(currentUsers);
 
+            // Calculate the number of members needed
+            int membersNeeded = widget.maxUsers - currentUsers.length;
+            int roomsize = widget.maxUsers;
+
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -130,6 +135,24 @@ class _WaitingScreenState extends State<WaitingScreen> {
                     'Room ID: ${widget.roomId}',
                     style: TextStyle(fontSize: 18),
                   ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Category: ${category ?? "Not specified"}', // Show category
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Room Size : $roomsize', // Show members needed
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  SizedBox(height: 20),
+                  if(membersNeeded>0)
+                    Text(
+                      'Waiting for  $membersNeeded more players to join',
+                      // Show members needed
+                      style: TextStyle(fontSize: 18, color: Colors.blue),
+                    ),
+
                   SizedBox(height: 20),
                   Text(
                     'Waiting for players to join...',
