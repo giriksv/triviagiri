@@ -1,6 +1,6 @@
 import 'dart:async'; // Import Timer
 import 'package:flutter/material.dart';
-import '../controller/MultiplayerQuizController.dart';
+import 'MultiplayerQuizController.dart';
 import 'ViewResultsScreen.dart';
 import '../utils/roomdeletion_utils.dart'; // Import the room deletion utils for the dialog
 

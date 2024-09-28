@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import '../model/MultiplayerQuizModel.dart';
+import 'MultiplayerQuizModel.dart';
 
 class MultiplayerQuizController {
   final MultiplayerQuizModel model = MultiplayerQuizModel();

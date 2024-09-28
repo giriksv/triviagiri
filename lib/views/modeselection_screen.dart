@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'category_screen.dart';
-import 'room_type_screen.dart'; // Import the RoomTypeScreen
+import '../multiplayer/room_type_screen.dart'; // Import the RoomTypeScreen
 
 class ModeSelectionScreen extends StatelessWidget {
   final String email;

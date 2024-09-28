@@ -21,45 +21,56 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _initApp();
+    _startBackgroundTasks();
+    _navigateAfterDelay();
   }
 
-  Future<void> _initApp() async {
-    await _fetchAndStoreQuizzes();
+  // Function to run background tasks like CSV fetching and authentication
+  void _startBackgroundTasks() {
+    Future.microtask(() async {
+      await _fetchAndStoreQuizzes();
+      await _authenticateUser();
+    });
+  }
+
+  // This ensures that the app navigates after 3 seconds
+  Future<void> _navigateAfterDelay() async {
     await Future.delayed(Duration(seconds: 3));
-
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user != null) {
-      await _authController.refreshGoogleSignInToken();
-      user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => ModeSelectionScreen(email: user!.email!)),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => SignupScreen()),
-        );
-      }
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => SignupScreen()),
-      );
-    }
+    _navigateToNextScreen();
   }
 
   Future<void> _fetchAndStoreQuizzes() async {
     try {
       List<QuizModel> quizzes =
-          await _storageService.fetchCsvFromStorage('quizcsvfirestorage.csv');
+      await _storageService.fetchCsvFromStorage('quizcsvfirestorage.csv');
       await _dbController.clearAndCreateDb(quizzes);
     } catch (e) {
       print('Error fetching quizzes: $e');
+    }
+  }
+
+  Future<void> _authenticateUser() async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      await _authController.refreshGoogleSignInToken();
+    }
+  }
+
+  void _navigateToNextScreen() {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ModeSelectionScreen(email: user.email!)),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => SignupScreen()),
+      );
     }
   }
 
