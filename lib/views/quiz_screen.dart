@@ -230,10 +230,10 @@ class _QuizScreenState extends State<QuizScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Question ${_currentQuestionIndex + 1}/${widget.quizzes.length}',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                ),
+                // Text(
+                //   'Question ${_currentQuestionIndex + 1}/${widget.quizzes.length}',
+                //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                // ),
                 Row(
                   children: [
                     Icon(Icons.timer, color: Colors.red),
