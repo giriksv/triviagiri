@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'profile_screen.dart';
-import 'match_screen.dart';
+import 'leaderboard_screen.dart';
 import 'daily_rewards.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -56,24 +56,24 @@ class SettingsScreen extends StatelessWidget {
                     );
                   },
                 ),
+                // ListTile(
+                //   title: Text('Daily Rewards'),
+                //   onTap: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //         builder: (context) => DailyRewardsScreen(),
+                //       ),
+                //     );
+                //   },
+                // ),
                 ListTile(
-                  title: Text('Daily Rewards'),
+                  title: Text('Leader Board'),
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DailyRewardsScreen(),
-                      ),
-                    );
-                  },
-                ),
-                ListTile(
-                  title: Text('Match'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MatchScreen(),
+                        builder: (context) => LeaderBoardScreen(),
                       ),
                     );
                   },

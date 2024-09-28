@@ -1,3 +1,4 @@
+import 'dart:async'; // Import Timer
 import 'package:flutter/material.dart';
 import '../controller/MultiplayerQuizController.dart';
 import 'ViewResultsScreen.dart';
@@ -28,10 +29,19 @@ class _MultiplayerQuizScreenState extends State<MultiplayerQuizScreen> {
   String? _correctAnswer;
   bool _isLoading = false;
 
+  Timer? _timer;
+  int _remainingTime = 7; // Initialize with 10 seconds for each question
+
   @override
   void initState() {
     super.initState();
     _loadQuestions();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
   }
 
   Future<void> _loadQuestions() async {
@@ -44,8 +54,7 @@ class _MultiplayerQuizScreenState extends State<MultiplayerQuizScreen> {
 
     // Filter questions based on the category and limit to the first 5
     final filteredQuestions = allQuestions
-        .where((question) =>
-    question['category'].toString().trim() == widget.category.trim())
+        .where((question) => question['category'].toString().trim() == widget.category.trim())
         .toList()
         .take(5)
         .toList(); // Limit to 5 questions
@@ -54,6 +63,43 @@ class _MultiplayerQuizScreenState extends State<MultiplayerQuizScreen> {
       _questions = filteredQuestions;
       _isLoading = false;
     });
+
+    // Start the timer for the first question
+    _startTimer();
+  }
+
+  void _startTimer() {
+    // Reset the timer to 10 seconds
+    _remainingTime = 10;
+
+    _timer?.cancel(); // Cancel any existing timer
+
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_remainingTime > 0) {
+          _remainingTime--;
+        } else {
+          _timer?.cancel();
+          _autoSubmitAnswer(); // Automatically move to the next question
+        }
+      });
+    });
+  }
+
+  void _autoSubmitAnswer() {
+    // Automatically move to the next question if no answer is selected
+    if (_currentQuestionIndex < _questions.length - 1) {
+      setState(() {
+        _currentQuestionIndex++;
+        _selectedAnswer = null;
+        _correctAnswer = null;
+      });
+      _startTimer(); // Start the timer for the next question
+    } else {
+      setState(() {
+        _isQuizCompleted = true;
+      });
+    }
   }
 
   void _submitAnswer() async {
@@ -86,12 +132,16 @@ class _MultiplayerQuizScreenState extends State<MultiplayerQuizScreen> {
       });
     }
 
+    _timer?.cancel(); // Cancel the timer when the answer is submitted
+
     // Move to the next question immediately
     if (_currentQuestionIndex < _questions.length - 1) {
       setState(() {
         _currentQuestionIndex++;
         _selectedAnswer = null; // Reset selected answer for the next question
+        _correctAnswer = null;
       });
+      _startTimer(); // Restart the timer for the next question
     } else {
       setState(() {
         _isQuizCompleted = true;
@@ -147,8 +197,8 @@ class _MultiplayerQuizScreenState extends State<MultiplayerQuizScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ViewResultsScreen(
-                          roomId: widget.roomId,
-                          userEmail: widget.userEmail, userName: '',),
+                        roomId: widget.roomId,
+                        userEmail: widget.userEmail, userName: '',),
                     ),
                   );
                 },
@@ -174,6 +224,12 @@ class _MultiplayerQuizScreenState extends State<MultiplayerQuizScreen> {
               _buildOptionButton(
                   _questions[_currentQuestionIndex]['optionD'],
                   _questions[_currentQuestionIndex]['optionD']),
+              SizedBox(height: 20),
+              // Timer display
+              Text(
+                "Time remaining: $_remainingTime seconds",
+                style: TextStyle(fontSize: 18, color: Colors.red),
+              ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _selectedAnswer == null ? null : _submitAnswer,
