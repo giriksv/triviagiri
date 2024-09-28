@@ -8,17 +8,19 @@ import 'modeselection_screen.dart';
 class CharacterSelectionScreen extends StatelessWidget {
   final String email;
   final String name;
+  final int points;
 
   CharacterSelectionScreen({
     required this.email,
     required this.name,
+    this.points=20,
   });
 
   final List<String> characters = ['Boy', 'Girl', 'Robo', 'Tiger'];
   final AllDBController _dbController = AllDBController();
 
   void _selectCharacter(BuildContext context, String character) async {
-    UserModel user = UserModel(email: email, character: character, name: name);
+    UserModel user = UserModel(email: email, character: character, name: name, points: 50);
     await _dbController.insertUserData(user); // Insert user data into Firestore
 
     Navigator.pushReplacement(

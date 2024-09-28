@@ -33,7 +33,8 @@ class _SignupScreenState extends State<SignupScreen> {
           MaterialPageRoute(
             builder: (context) => CharacterSelectionScreen(
               email: user.email,
-              name: user.name, // Pass the name here
+              name: user.name,
+              points: 20,// Pass the name here
             ),
           ),
         );
