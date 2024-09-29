@@ -49,7 +49,7 @@ class NotificationScreen extends StatelessWidget {
 
                 return Card(
                   child: ListTile(
-                    title: Text('$senderName has invited you to a room'),
+                    title: Text('$senderName has invited you to join their room'),
                     subtitle: Text('Room ID: $roomId\nCategory: $category'),
                     isThreeLine: true,
                     trailing: Row(

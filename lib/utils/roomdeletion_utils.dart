@@ -16,15 +16,28 @@ Future<void> removeUserAndHandleRoomDeletion({
     if (roomSnapshot.exists) {
       List<dynamic> users = List.from(roomSnapshot['users']); // Create a mutable copy of users
 
+      // Print the current users in the room for debugging
+      print('Current users before removal: $users');
+
       // Remove the user from the users array
-      users.removeWhere((user) => user['email'] == userEmail);
+      users.removeWhere((user) {
+        print('Checking user: ${user['email']}'); // Print each user being checked
+        return user['email'] == userEmail;
+      });
+
+      // Print the users after removal attempt
+      print('Users after removal attempt: $users');
 
       // If the users array is empty, delete the room
       if (users.isEmpty) {
+        print('No users left. Deleting the room: $roomId');
         transaction.delete(roomRef); // Delete the room if no users are left
       } else {
+        print('Updating users array in the room: $roomId');
         transaction.update(roomRef, {'users': users}); // Update the users array
       }
+    } else {
+      print('Room does not exist.');
     }
   }).catchError((error) {
     // Handle any errors that occur during the transaction
@@ -35,7 +48,9 @@ Future<void> removeUserAndHandleRoomDeletion({
 Future<void> showLeaveRoomDialog({
   required BuildContext context,
   required String userEmail,
-  required String roomId, required String email, required String userName,
+  required String roomId,
+  required String email,
+  required String userName,
 }) async {
   return showDialog<void>(
     context: context,

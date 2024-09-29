@@ -22,16 +22,18 @@ class _InviteDialogState extends State<InviteDialog> {
   bool _isLoading = false; // Loading state for invites
   List<Map<String, dynamic>> _users = []; // List of users to invite
   String inviterEmail = ''; // Variable to store the inviter's email
+  String inviterName = ''; // Variable to store the inviter's name
+  int maxUsers = 5; // Assuming max users are fixed for the room
 
   @override
   void initState() {
     super.initState();
     _fetchUsers(); // Fetch available users when the dialog initializes
-    _fetchInviterEmail(); // Fetch the inviter's email
+    _fetchInviterDetails(); // Fetch the inviter's email and name
   }
 
-  // Fetch the inviter's email from the room's users array
-  Future<void> _fetchInviterEmail() async {
+  // Fetch the inviter's email and name from the room's users array
+  Future<void> _fetchInviterDetails() async {
     try {
       DocumentSnapshot roomSnapshot = await FirebaseFirestore.instance
           .collection('rooms')
@@ -42,7 +44,8 @@ class _InviteDialogState extends State<InviteDialog> {
         var users = roomSnapshot['users'] as List;
         if (users.isNotEmpty) {
           inviterEmail = users[0]['email']; // Assuming the inviter's email is at index 0
-          print('Inviter Email fetched: $inviterEmail'); // Debugging print
+          inviterName = users[0]['name'] ?? 'Unknown'; // Assuming the inviter's name
+          print('Inviter Details fetched: $inviterEmail, $inviterName');
         } else {
           print('No users found in the room.');
         }
@@ -50,9 +53,9 @@ class _InviteDialogState extends State<InviteDialog> {
         print('Room does not exist.');
       }
     } catch (e) {
-      print('Error fetching inviter email: $e');
+      print('Error fetching inviter details: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to fetch inviter email')),
+        SnackBar(content: Text('Failed to fetch inviter details')),
       );
     }
   }
@@ -87,12 +90,10 @@ class _InviteDialogState extends State<InviteDialog> {
 
   // Handle sending an invite
   Future<void> _sendInvite(String inviteeEmail, String inviteeName) async {
-    // Debugging prints to check values
     print('Room ID: ${widget.roomId}');
     print('Inviter Email: $inviterEmail');
     print('Invitee Email: $inviteeEmail');
 
-    // Check for empty parameters
     if (widget.roomId.isEmpty || inviterEmail.isEmpty || inviteeEmail.isEmpty) {
       print('Error: One of the required parameters is empty');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -119,9 +120,10 @@ class _InviteDialogState extends State<InviteDialog> {
           .add({
         'type': 'invite',
         'senderEmail': inviterEmail,
-        'senderName': 'Your Inviter Name', // You may need to fetch this as well
+        'senderName': inviterName,
         'roomId': widget.roomId,
         'category': widget.category,
+        'maxUsers': maxUsers,
         'timestamp': FieldValue.serverTimestamp(),
       });
 
