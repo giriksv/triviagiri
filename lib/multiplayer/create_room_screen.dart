@@ -20,6 +20,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
   String? _selectedCategory;
   String? _userName;
   int? _maxUsers;
+  String? _roomId; // Room ID to be generated
 
   final List<String> _categories = CategoryUtils.categories;
   final List<int> _maxUsersOptions = [2, 3, 4];
@@ -30,57 +31,75 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
     _fetchUserName();
   }
 
+  // Fetch the user's name from Firestore
   Future<void> _fetchUserName() async {
-    DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(widget.email)
-        .get();
+    try {
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.email)
+          .get();
 
-    if (userSnapshot.exists) {
-      setState(() {
-        _userName = userSnapshot['name'];
-      });
+      if (userSnapshot.exists) {
+        setState(() {
+          _userName = userSnapshot['name'];
+        });
+      }
+    } catch (e) {
+      // Handle any errors
+      print('Error fetching user name: $e');
     }
   }
 
+  // Create a room with the specified details
   Future<void> _createRoom() async {
     if (_formKey.currentState!.validate() && _selectedCategory != null) {
-      String roomId = _generateRoomCode();
+      _roomId = _generateRoomCode(); // Generate room ID
 
-      // Initialize room and add the current user with roomPoints 0
-      await FirebaseFirestore.instance.collection('rooms').doc(roomId).set({
-        'roomName': _roomNameController.text,
-        'maxUsers': _maxUsers,
-        'category': _selectedCategory,
-        'users': [
-          {
-            'email': widget.email,
-            'name': _userName ?? 'Unknown',
-            'roomPoints': 0, // Initialize roomPoints for the user
-          }
-        ],
-      });
+      try {
+        // Initialize room and add the current user with roomPoints 0
+        await FirebaseFirestore.instance.collection('rooms').doc(_roomId).set({
+          'roomName': _roomNameController.text,
+          'maxUsers': _maxUsers,
+          'category': _selectedCategory,
+          'users': [
+            {
+              'email': widget.email,
+              'name': _userName ?? 'Unknown',
+              'roomPoints': 0, // Initialize roomPoints for the user
+            }
+          ],
+          'invitedUsers': [], // Initialize invited users array
+        });
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => WaitingScreen(
-            roomName: _roomNameController.text,
-            roomId: roomId,
-            members: [
-              {
-                'email': widget.email,
-                'name': _userName ?? 'Unknown',
-                'roomPoints': 0, // Initialize roomPoints for the user
-              }
-            ],
-            maxUsers: _maxUsers!,
+        // Navigate to the WaitingScreen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => WaitingScreen(
+              roomName: _roomNameController.text,
+              roomId: _roomId!, // Pass the roomId
+              members: [
+                {
+                  'email': widget.email,
+                  'name': _userName ?? 'Unknown',
+                  'roomPoints': 0,
+                }
+              ],
+              maxUsers: _maxUsers!, email: '',
+            ),
           ),
-        ),
-      );
+        );
+      } catch (e) {
+        // Handle Firestore errors
+        print('Error creating room: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create room: $e')),
+        );
+      }
     }
   }
 
+  // Generate a unique room code
   String _generateRoomCode() {
     return (Random().nextInt(9000000) + 1000000).toString();
   }
@@ -88,7 +107,9 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Create Room")),
+      appBar: AppBar(
+        title: Text("Create Room"),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

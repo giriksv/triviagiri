@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'create_room_screen.dart';
 import 'join_room_screen.dart';
+import 'notification_screen.dart'; // Import the NotificationScreen
 
 class RoomTypeScreen extends StatelessWidget {
   final String email;
@@ -13,6 +14,20 @@ class RoomTypeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Multiplayer Options"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications),
+            onPressed: () {
+              // Navigate to the NotificationScreen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NotificationScreen(email: email),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Center(
         child: Column(

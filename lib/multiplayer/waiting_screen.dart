@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async';
 import '../utils/roomdeletion_utils.dart'; // Import your room deletion utilities
 import 'multiplayer_quiz_screen.dart';
+import 'notification_screen.dart';
+import 'invite_dialog.dart';
 
 class WaitingScreen extends StatefulWidget {
   final String roomName;
@@ -15,7 +17,7 @@ class WaitingScreen extends StatefulWidget {
     required this.roomName,
     required this.roomId,
     required this.members,
-    required this.maxUsers,
+    required this.maxUsers, required String email,
   });
 
   @override
@@ -79,6 +81,21 @@ class _WaitingScreenState extends State<WaitingScreen> {
     }
   }
 
+  void _openInviteDialog(List<dynamic> invitedUsers) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return InviteDialog(
+          roomId: widget.roomId,
+          category: category ?? 'Unknown',
+          email: userEmail,
+          invitedUsers: List<String>.from(invitedUsers),
+          currentMembersEmails: widget.members.map((m) => m['email'] as String).toList(),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -96,6 +113,20 @@ class _WaitingScreenState extends State<WaitingScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text("Waiting for Players"),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.notifications),
+              onPressed: () {
+                // Navigate to the NotificationScreen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NotificationScreen(email: userEmail),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
         body: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
@@ -109,8 +140,13 @@ class _WaitingScreenState extends State<WaitingScreen> {
               );
             }
 
+            if (snapshot.hasError) {
+              return Center(child: Text('Error loading room data'));
+            }
+
             var roomData = snapshot.data!.data() as Map<String, dynamic>;
             List<dynamic> currentUsers = roomData['users'];
+            List<dynamic> invitedUsers = roomData['invitedUsers'] ?? [];
 
             // Fetch the category from the room document
             category = roomData['category'];
@@ -120,7 +156,6 @@ class _WaitingScreenState extends State<WaitingScreen> {
 
             // Calculate the number of members needed
             int membersNeeded = widget.maxUsers - currentUsers.length;
-            int roomsize = widget.maxUsers;
 
             return Center(
               child: Column(
@@ -142,17 +177,15 @@ class _WaitingScreenState extends State<WaitingScreen> {
                   ),
                   SizedBox(height: 20),
                   Text(
-                    'Room Size : $roomsize', // Show members needed
+                    'Room Size: ${widget.maxUsers}', // Show max users
                     style: TextStyle(fontSize: 18),
                   ),
                   SizedBox(height: 20),
-                  if(membersNeeded>0)
+                  if (membersNeeded > 0)
                     Text(
-                      'Waiting for  $membersNeeded more players to join',
-                      // Show members needed
+                      'Waiting for $membersNeeded more players to join',
                       style: TextStyle(fontSize: 18, color: Colors.blue),
                     ),
-
                   SizedBox(height: 20),
                   Text(
                     'Waiting for players to join...',
@@ -165,6 +198,13 @@ class _WaitingScreenState extends State<WaitingScreen> {
                       'Game begins in $_countdown seconds...',
                       style: TextStyle(fontSize: 18, color: Colors.red),
                     ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      _openInviteDialog(invitedUsers);
+                    },
+                    child: Text('Send Invite'),
+                  ),
                 ],
               ),
             );
