@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../model/user_model.dart';
-import '../model/quiz_model.dart';
+import '../model/single_player_quiz_model.dart';
 import '../services/local_db_service.dart';
 
 class AllDBController {

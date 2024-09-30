@@ -1,6 +1,6 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:convert';
-import '../model/quiz_model.dart';
+import '../model/single_player_quiz_model.dart';
 import 'package:http/http.dart' as http;
 
 

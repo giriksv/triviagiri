@@ -1,8 +1,8 @@
 // notification_screen.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'notification_model.dart';
-import 'notification_controller.dart';
+import '../multi_player_model/notification_model.dart';
+import '../multi_player_controller/notification_controller.dart';
 
 class NotificationScreen extends StatelessWidget {
   final String email;

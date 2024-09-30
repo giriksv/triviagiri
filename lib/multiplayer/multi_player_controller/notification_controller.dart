@@ -1,8 +1,8 @@
 // notification_controller.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'notification_model.dart';
-import 'waiting_screen.dart';
+import '../multi_player_model/notification_model.dart';
+import '../multi_player_views/waiting_screen.dart';
 
 class NotificationController {
   final String email;
@@ -67,5 +67,15 @@ class NotificationController {
 
   Future<void> deleteNotification(String notificationId) async {
     await NotificationModel(email: email).deleteNotification(notificationId);
+  }
+
+  // New method to mark a notification as viewed
+  Future<void> markNotificationAsViewed(String notificationId) async {
+    await FirebaseFirestore.instance
+        .collection('notifications')
+        .doc(email)
+        .collection('userNotifications')
+        .doc(notificationId)
+        .update({'viewed': true});
   }
 }

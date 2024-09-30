@@ -1,8 +1,8 @@
 import 'dart:async'; // Import Timer
 import 'package:flutter/material.dart';
-import 'MultiplayerQuizController.dart';
+import '../multi_player_controller/MultiplayerQuizController.dart';
 import 'ViewResultsScreen.dart';
-import '../utils/roomdeletion_utils.dart'; // Import the room deletion utils for the dialog
+import '../../utils/roomdeletion_utils.dart'; // Import the room deletion utils for the dialog
 
 class MultiplayerQuizScreen extends StatefulWidget {
   final String roomId;

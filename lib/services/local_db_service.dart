@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import '../model/quiz_model.dart';
+import '../model/single_player_quiz_model.dart';
 
 class LocalDatabaseService {
   static Database? _database;

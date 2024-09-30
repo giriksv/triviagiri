@@ -35,6 +35,7 @@ class NotificationData {
   final String roomId;
   final String category;
   final Timestamp timestamp;
+  final bool viewed; // New field
 
   NotificationData({
     required this.id,
@@ -43,6 +44,7 @@ class NotificationData {
     required this.roomId,
     required this.category,
     required this.timestamp,
+    this.viewed = false, // Default value
   });
 
   factory NotificationData.fromSnapshot(DocumentSnapshot doc) {
@@ -54,6 +56,7 @@ class NotificationData {
       roomId: data['roomId'] ?? '',
       category: data['category'] ?? 'Unknown',
       timestamp: data['timestamp'],
+      viewed: data['viewed'] ?? false, // Initialize from snapshot
     );
   }
 }

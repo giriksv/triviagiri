@@ -11,7 +11,8 @@ class InviteDialog extends StatefulWidget {
     required this.roomId,
     required this.category,
     required this.invitedUsers,
-    required this.currentMembersEmails, required String email,
+    required this.currentMembersEmails,
+    required String email,
   });
 
   @override
@@ -158,7 +159,7 @@ class _InviteDialogState extends State<InviteDialog> {
       title: Text('Send Invite'),
       content: _isLoading
           ? Center(
-        child: LinearProgressIndicator(), // New loading symbol
+        child: LinearProgressIndicator(), // Loading symbol
       )
           : _users.isEmpty
           ? Container() // No message if no users, just leave empty
@@ -174,23 +175,20 @@ class _InviteDialogState extends State<InviteDialog> {
 
             return ListTile(
               leading: Icon(Icons.person),
-              title: Text(user['name']),
-              subtitle: Text(user['email']),
-              trailing: ElevatedButton(
+              title: Text(user['name'], style: TextStyle(fontSize: 16)),
+              subtitle: Text(user['email'], style: TextStyle(fontSize: 14, color: Colors.grey)),
+              trailing: IconButton(
+                icon: Icon(
+                  Icons.mail_outline,
+                  color: isInvited || isInviting
+                      ? Colors.grey.withOpacity(0.5) // Blurred effect if invited or inviting
+                      : Colors.blue, // Normal icon color
+                ),
                 onPressed: isInvited || isInviting
-                    ? null // Disable button if already invited or inviting
+                    ? null // Disable icon if already invited or inviting
                     : () {
                   _sendInvite(user['email'], user['name']);
                 },
-                child: isInvited
-                    ? Text('Invited')
-                    : isInviting
-                    ? SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-                    : Text('Send Invite'),
               ),
             );
           },
@@ -207,3 +205,4 @@ class _InviteDialogState extends State<InviteDialog> {
     );
   }
 }
+

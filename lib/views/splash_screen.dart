@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../controller/all_db_controller.dart';
-import '../model/quiz_model.dart';
+import '../model/single_player_quiz_model.dart';
 import '../services/storage_service.dart';
 import 'category_screen.dart';
 import 'modeselection_screen.dart';

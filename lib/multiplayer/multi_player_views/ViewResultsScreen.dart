@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../utils/roomdeletion_utils.dart'; // Import the room deletion utility
+import '../../utils/roomdeletion_utils.dart'; // Import the room deletion utility
 
 class ViewResultsScreen extends StatelessWidget {
   final String roomId;

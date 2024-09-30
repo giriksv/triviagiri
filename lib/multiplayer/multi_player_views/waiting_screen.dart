@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
-import '../utils/roomdeletion_utils.dart'; // Import your room deletion utilities
+import '../../utils/roomdeletion_utils.dart'; // Import your room deletion utilities
 import 'multiplayer_quiz_screen.dart';
 import 'notification_screen.dart';
 import 'invite_dialog.dart';

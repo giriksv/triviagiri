@@ -1,6 +1,6 @@
-// controller/quiz_controller.dart
+// controller/single_player_quiz_controller.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../model/quiz_model.dart';
+import '../model/single_player_quiz_model.dart';
 
 class QuizController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
