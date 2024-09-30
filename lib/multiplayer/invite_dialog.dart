@@ -19,11 +19,12 @@ class InviteDialog extends StatefulWidget {
 }
 
 class _InviteDialogState extends State<InviteDialog> {
-  bool _isLoading = false; // Loading state for invites
+  bool _isLoading = true; // Initially loading state is true
   List<Map<String, dynamic>> _users = []; // List of users to invite
   String inviterEmail = ''; // Variable to store the inviter's email
   String inviterName = ''; // Variable to store the inviter's name
   int maxUsers = 5; // Assuming max users are fixed for the room
+  Map<String, bool> _invitingUsers = {}; // Track invited state for each user
 
   @override
   void initState() {
@@ -79,12 +80,16 @@ class _InviteDialogState extends State<InviteDialog> {
 
       setState(() {
         _users = users;
+        _isLoading = false; // Stop loading once users are fetched
       });
     } catch (e) {
       print('Error fetching users: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to fetch users')),
       );
+      setState(() {
+        _isLoading = false; // Stop loading even if fetching fails
+      });
     }
   }
 
@@ -103,7 +108,7 @@ class _InviteDialogState extends State<InviteDialog> {
     }
 
     setState(() {
-      _isLoading = true;
+      _invitingUsers[inviteeEmail] = true; // Mark this user as being invited
     });
 
     try {
@@ -127,19 +132,21 @@ class _InviteDialogState extends State<InviteDialog> {
         'timestamp': FieldValue.serverTimestamp(),
       });
 
+      setState(() {
+        _invitingUsers[inviteeEmail] = false; // Mark the invite process as done
+        widget.invitedUsers.add(inviteeEmail); // Add this user to the invited list
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Invite sent to $inviteeName')),
       );
-
-      Navigator.pop(context); // Close the dialog after sending the invite
     } catch (e) {
       print('Error sending invite: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to send invite')),
       );
-    } finally {
       setState(() {
-        _isLoading = false;
+        _invitingUsers[inviteeEmail] = false; // Reset state on failure
       });
     }
   }
@@ -150,9 +157,11 @@ class _InviteDialogState extends State<InviteDialog> {
     return AlertDialog(
       title: Text('Send Invite'),
       content: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Center(
+        child: LinearProgressIndicator(), // New loading symbol
+      )
           : _users.isEmpty
-          ? Text('No users available to invite')
+          ? Container() // No message if no users, just leave empty
           : Container(
         width: double.maxFinite,
         child: ListView.builder(
@@ -160,15 +169,28 @@ class _InviteDialogState extends State<InviteDialog> {
           itemCount: _users.length,
           itemBuilder: (context, index) {
             final user = _users[index];
+            final isInvited = widget.invitedUsers.contains(user['email']);
+            final isInviting = _invitingUsers[user['email']] ?? false;
+
             return ListTile(
               leading: Icon(Icons.person),
               title: Text(user['name']),
               subtitle: Text(user['email']),
               trailing: ElevatedButton(
-                onPressed: () {
+                onPressed: isInvited || isInviting
+                    ? null // Disable button if already invited or inviting
+                    : () {
                   _sendInvite(user['email'], user['name']);
                 },
-                child: Text('Send Invite'),
+                child: isInvited
+                    ? Text('Invited')
+                    : isInviting
+                    ? SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+                    : Text('Send Invite'),
               ),
             );
           },

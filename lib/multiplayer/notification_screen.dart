@@ -1,5 +1,3 @@
-// notification_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'waiting_screen.dart';
@@ -46,19 +44,38 @@ class NotificationScreen extends StatelessWidget {
                 String senderName = notification['senderName'] ?? 'Unknown';
                 String roomId = notification['roomId'] ?? '';
                 String category = notification['category'] ?? 'Unknown';
+                Timestamp timestamp = notification['timestamp'];
 
                 return Card(
                   child: ListTile(
-                    title: Text('$senderName has invited you to join their room'),
-                    subtitle: Text('Room ID: $roomId\nCategory: $category'),
+                    title: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: formatTimestamp(timestamp), // Formatted timestamp
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold, // Make the timestamp bold
+                              color: Colors.black, // Ensure the text color is black
+                            ),
+                          ),
+                          TextSpan(
+                            text: '\n$senderName has invited you to join their room',
+                            style: TextStyle(
+                              fontWeight: FontWeight.normal, // Normal weight for remaining text
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    subtitle: Text('Room ID: $roomId\nCategory: $category'), // Use subtitle instead
                     isThreeLine: true,
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         ElevatedButton(
                           onPressed: () async {
-                            await _joinRoom(context, roomId);
-                            await _deleteNotification(notifications[index].id);
+                            await _joinRoom(context, roomId, notifications[index].id);
                           },
                           child: Text('Join'),
                         ),
@@ -88,7 +105,7 @@ class NotificationScreen extends StatelessWidget {
   }
 
   // Handle joining a room
-  Future<void> _joinRoom(BuildContext context, String roomId) async {
+  Future<void> _joinRoom(BuildContext context, String roomId, String notificationId) async {
     try {
       // Get the room document
       DocumentReference roomRef = FirebaseFirestore.instance.collection('rooms').doc(roomId);
@@ -112,7 +129,7 @@ class NotificationScreen extends StatelessWidget {
         return;
       }
 
-      // Fetch the user's name from 'users' collection
+      // Fetch the user's name from the 'users' collection
       DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(email)
@@ -141,10 +158,15 @@ class NotificationScreen extends StatelessWidget {
             roomName: roomData['roomName'] ?? 'Unknown',
             roomId: roomId,
             maxUsers: maxUsers,
-            email: email, members: [],
+            email: email,
+            members: [], // Pass any additional required data
           ),
         ),
       );
+
+      // Delete the notification after navigating
+      await _deleteNotification(notificationId);
+
     } catch (e) {
       print('Error joining room: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -165,5 +187,30 @@ class NotificationScreen extends StatelessWidget {
     } catch (e) {
       print('Error deleting notification: $e');
     }
+  }
+
+  // Function to format the timestamp
+  String formatTimestamp(Timestamp timestamp) {
+    DateTime notificationTime = timestamp.toDate();
+    DateTime now = DateTime.now();
+
+    // Compare with the current time
+    if (now.year == notificationTime.year && now.month == notificationTime.month && now.day == notificationTime.day) {
+      return 'Today ${_formatTime(notificationTime)}';
+    } else if (now.year == notificationTime.year && now.month == notificationTime.month && now.day == notificationTime.day - 1) {
+      return 'Yesterday ${_formatTime(notificationTime)}';
+    } else {
+      return '${_formatDate(notificationTime)} - ${_formatTime(notificationTime)}';
+    }
+  }
+
+  // Function to format time as HH:mm
+  String _formatTime(DateTime time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
+
+  // Function to format date as dd.MM.yyyy
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
   }
 }
