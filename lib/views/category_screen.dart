@@ -3,61 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../controller/all_db_controller.dart';
 import '../model/single_player_quiz_model.dart';
 import '../utils/categoryutils.dart';
+import '../utils/custom_app_bar.dart';
 import 'quiz_screen.dart';
-
-AppBar customAppBar() {
-  return AppBar(
-    title: ShaderMask(
-      shaderCallback: (bounds) => LinearGradient(
-        colors: [
-          Color(0xFF04143C), // Start color (dark blue)
-          Color(0xFFFB7290), // Middle color (pink)
-          Color(0xFFF7C6BF), // End color (light peach)
-        ],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ).createShader(bounds),
-      child: Text(
-        'Trivia',
-        style: GoogleFonts.outfit(
-          textStyle: TextStyle(
-            fontSize: 54, // Font size: 54px
-            fontWeight: FontWeight.w800, // Font weight: 800
-            letterSpacing: 0.75, // Letter spacing: 0.75em
-            height: 68.84 / 54, // Line-height: Adjusted for 54px
-            color: Colors.white, // Default color to make text visible with gradient
-            shadows: [
-              Shadow(
-                offset: Offset(2, 2), // Slightly offset shadow for bottom-right
-                color: Colors.black, // Border color
-                blurRadius: 5.0, // Blur radius for the shadow
-              ),
-              Shadow(
-                offset: Offset(-2, 2), // Slightly offset shadow for bottom-left
-                color: Colors.black, // Border color
-                blurRadius: 5.0, // Blur radius for the shadow
-              ),
-              Shadow(
-                offset: Offset(2, -2), // Slightly offset shadow for top-right
-                color: Colors.black, // Border color
-                blurRadius: 5.0, // Blur radius for the shadow
-              ),
-              Shadow(
-                offset: Offset(-2, -2), // Slightly offset shadow for top-left
-                color: Colors.black, // Border color
-                blurRadius: 5.0, // Blur radius for the shadow
-              ),
-            ],
-          ),
-        ),
-        textAlign: TextAlign.center, // Align text to the center
-      ),
-    ),
-    centerTitle: true,
-    backgroundColor: Color(0xFFFFEDEC),
-    elevation: 4, // Optionally add elevation for a shadow effect
-  );
-}
 
 class CategoryScreen extends StatefulWidget {
   final String email;
@@ -102,7 +49,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar(), // Use custom AppBar
+      appBar: customAppBar(), // Call the custom app bar here
       body: Container(
         color: Color(0xFFFFEDEC), // Background color
         child: Center( // Center the button column
