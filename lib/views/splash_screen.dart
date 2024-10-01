@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../controller/all_db_controller.dart';
 import '../model/single_player_quiz_model.dart';
 import '../services/storage_service.dart';
-import 'category_screen.dart';
 import 'modeselection_screen.dart';
 import 'signup_screen.dart';
 import '../controller/auth_controller.dart';
@@ -80,15 +79,38 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.blueAccent, Colors.purpleAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF04143C),  // #04143C
+              Color(0xFFFB7290),  // #FB7290
+              Color(0xFFF7C6BF),  // #F7C6BF
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Text(
+                'Trivia',
+                style: TextStyle(
+                  fontFamily: 'Outfit',
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      offset: Offset(0, -2),
+                      color: Color(0xFF583458),  // Text border color (#583458)
+                    ),
+                  ],
+                  decoration: TextDecoration.none,
+                  decorationColor: Color(0xFF583458),  // Border color for text
+                  decorationThickness: 1.5,
+                ),
+              ),
+              SizedBox(height: 20),
               Container(
                 width: 200,
                 child: LinearProgressIndicator(
@@ -100,6 +122,7 @@ class _SplashScreenState extends State<SplashScreen> {
               Text(
                 'Loading, please wait...',
                 style: TextStyle(
+                  fontFamily: 'Outfit',
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,

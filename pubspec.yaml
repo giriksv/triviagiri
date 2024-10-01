@@ -39,3 +39,8 @@ flutter:
   # Define the assets folder and give access to all assets in the assets/gif/ folder
   assets:
     - assets/gif/
+  fonts:
+    - family: Outfit
+      fonts:
+        - asset: fonts/Outfit-VariableFont_wght.ttf
+
