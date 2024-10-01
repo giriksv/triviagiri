@@ -3,6 +3,8 @@ import '../controller/auth_controller.dart';
 import '../controller/all_db_controller.dart';
 import '../model/user_model.dart';
 import 'character_selection.dart';
+import '../utils/custom_app_bar.dart';  // Import the custom AppBar
+import '../utils/background_color_utils.dart'; // Import the background color utils
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -20,11 +22,9 @@ class _SignupScreenState extends State<SignupScreen> {
     });
 
     try {
-      // Sign in with Google and get user details
       UserModel? user = await _authController.signInWithGoogle();
 
       if (user != null) {
-        // Store user data in Firestore
         await _dbController.insertUserData(user);
 
         print("User signed in: ${user.email}");
@@ -34,7 +34,7 @@ class _SignupScreenState extends State<SignupScreen> {
             builder: (context) => CharacterSelectionScreen(
               email: user.email,
               name: user.name,
-              points: 20,// Pass the name here
+              points: 20, // Pass the points here
             ),
           ),
         );
@@ -56,21 +56,67 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Sign Up')),
-      body: Center(
-        child: _isLoading
-            ? CircularProgressIndicator()
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+      appBar: customAppBar(),  // Use the custom AppBar
+      body: Container(
+        width: double.infinity, // Ensures the container stretches to fill the width
+        height: double.infinity, // Ensures the container stretches to fill the height
+        color: BackgroundColorUtils.backgroundColor, // Set the background color
+        child: SingleChildScrollView(  // Make the body scrollable
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0), // Add horizontal padding
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      await signInWithGoogle(context);
-                    },
-                    child: Text('Continue with Google'),
+                  SizedBox(height: 200), // Space from the app bar
+                  Text(
+                    'Hello..!',
+                    style: TextStyle(
+                      color: Colors.black, // Set text color to white
+                      fontSize: MediaQuery.of(context).size.width * 0.08, // Responsive font size
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
+                  SizedBox(height: 50), // Space between text and button
+                  Text(
+                    'Create your account and continue',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Color(0xFF7D7E80), // Set text color to #7D7E80
+                      fontSize: MediaQuery.of(context).size.width * 0.05, // Responsive font size
+                    ),
+                  ),
+                  SizedBox(height: 50), // Space before the button
+                  _isLoading
+                      ? CircularProgressIndicator() // Show loading indicator
+                      : SizedBox(
+                    width: double.infinity, // Make the button full-width
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await signInWithGoogle(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFDE6786), // Set the button color
+                        padding: EdgeInsets.symmetric(vertical: 15), // Increase vertical padding
+                      ),
+                      child: Text(
+                        'Continue with Google',
+                        style: TextStyle(
+                          color: Colors.white, // Set button text color to white
+                          fontSize: MediaQuery.of(context).size.width * 0.045, // Responsive font size
+                          fontWeight: FontWeight.bold, // Make the text bold
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20), // Space after button
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.1), // Extra space for smaller screens
                 ],
               ),
+            ),
+          ),
+        ),
       ),
     );
   }
