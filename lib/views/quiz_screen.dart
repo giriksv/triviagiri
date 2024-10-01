@@ -2,10 +2,12 @@ import 'dart:async'; // Import for Timer
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/background_color_utils.dart';
+import '../utils/custom_app_bar.dart';
 import 'settings_screen.dart';
 import '../controller/all_db_controller.dart';
 import '../controller/single_player_quiz_controller.dart';
-import '../model/single_player_quiz_model.dart';
+import '../model/single_player_quiz_model.dart'; // Import custom AppBar
 
 const int pointsPerCorrectAnswer = 5;
 const int questionTimeLimit = 10; // Time limit per question in seconds
@@ -74,9 +76,6 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _autoMoveToNextQuestion() {
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(content: Text('Time\'s up! Moving to the next question.')),
-    // );
     _moveToNextQuestion();
   }
 
@@ -114,11 +113,6 @@ class _QuizScreenState extends State<QuizScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('User not logged in.')),
       );
-      // Optionally redirect to login screen
-      // Navigator.push(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => LoginScreen()),
-      // );
     }
   }
 
@@ -183,7 +177,6 @@ class _QuizScreenState extends State<QuizScreen> {
         );
       },
     ).then((_) {
-      // In case the dialog is dismissed by other means
       if (mounted) {
         _moveToNextQuestion();
       }
@@ -194,9 +187,8 @@ class _QuizScreenState extends State<QuizScreen> {
   Widget build(BuildContext context) {
     if (widget.quizzes.isEmpty) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text('Quiz: ${widget.category}'),
-        ),
+        appBar: customAppBar(), // Use custom AppBar
+        backgroundColor: BackgroundColorUtils.backgroundColor, // Set background color
         body: Center(
           child: Text('No quizzes available in this category.'),
         ),
@@ -206,124 +198,109 @@ class _QuizScreenState extends State<QuizScreen> {
     final quiz = widget.quizzes[_currentQuestionIndex];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Quiz: ${widget.category}'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SettingsScreen()),
-              );
-            },
-          ),
-        ],
-      ),
+      appBar: customAppBar(), // Use custom AppBar
+      backgroundColor: BackgroundColorUtils.backgroundColor, // Set background color
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
-          // mainAxisAlignment: MainAxisAlignment.center, // Optional: Adjust alignment
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Display Question Number and Timer
+            // Quiz and Timer Text with Icon
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Text(
-                //   'Question ${_currentQuestionIndex + 1}/${widget.quizzes.length}',
-                //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                // ),
+                Text(
+                  'Quiz',
+                  style: TextStyle(fontSize: 24, color: Color(0xFFC85E7E), fontWeight: FontWeight.bold),
+                ),
                 Row(
                   children: [
-                    Icon(Icons.timer, color: Colors.red),
+                    Icon(Icons.timer, color: Color(0xFFC85E7E)),
                     SizedBox(width: 5),
                     Text(
                       '$_remainingTime s',
-                      style: TextStyle(fontSize: 18, color: Colors.red),
+                      style: TextStyle(fontSize: 18, color: Color(0xFFC85E7E)),
                     ),
                   ],
                 ),
               ],
             ),
-            SizedBox(height: 10),
-            // Display Question
-            Text(
-              quiz.question,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
             SizedBox(height: 20),
-            // Display Answer Options
-            Expanded(
-              child: ListView(
-                children: [quiz.optionA, quiz.optionB, quiz.optionC, quiz.optionD]
-                    .map((option) => AnswerOption(
-                  option: option,
-                  selectedAnswer: _selectedAnswer,
-                  isSubmitted: _isAnswerSubmitted,
-                  correctAnswer: _correctAnswer,
-                  onChanged: _isAnswerSubmitted
-                      ? null
-                      : (value) {
-                    setState(() {
-                      _selectedAnswer = value;
-                    });
-                  },
-                ))
-                    .toList(),
+
+            // Question Container with white background and border
+            Container(
+              padding: EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24.0), // More curved edges
+                border: Border.all(
+                  color: Color(0xFFFA7B95), // Border color
+                  width: 4.0,
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  quiz.question,
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
             SizedBox(height: 20),
+
+            // Answer Options as Buttons
+            Column(
+              children: [
+                ...[quiz.optionA, quiz.optionB, quiz.optionC, quiz.optionD].map(
+                      (option) {
+                    final isSelected = _selectedAnswer == option;
+                    return Container(
+                      margin: EdgeInsets.symmetric(vertical: 5),
+                      child: ElevatedButton(
+                        onPressed: _isAnswerSubmitted
+                            ? null
+                            : () {
+                          setState(() {
+                            _selectedAnswer = option;
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isSelected ? Color(0xFFEAB834) : Color(0xFFFA7B95), // Change color if selected
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24), // More curved edges
+                          ),
+                          minimumSize: Size(double.infinity, 50), // Full-width buttons
+                        ),
+                        child: Text(
+                          option,
+                          style: TextStyle(fontSize: 18, color: Colors.white), // White text
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+
             // Submit Button
             ElevatedButton(
               onPressed: (_isAnswerSubmitted || _remainingTime == 0) ? null : _checkAnswer,
-              child: Text('Submit'),
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(double.infinity, 50), // Make button full-width
+                backgroundColor: Color(0xFF01CCCA), // Submit button color
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24), // More curved edges
+                ),
+                minimumSize: Size(double.infinity, 50), // Full-width button
+              ),
+              child: Text(
+                'Submit',
+                style: TextStyle(fontSize: 18, color: Colors.white), // White text
               ),
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-// Separate widget for Answer Options
-class AnswerOption extends StatelessWidget {
-  final String option;
-  final String? selectedAnswer;
-  final bool isSubmitted;
-  final String? correctAnswer;
-  final Function(String?)? onChanged;
-
-  AnswerOption({
-    required this.option,
-    required this.selectedAnswer,
-    required this.isSubmitted,
-    required this.correctAnswer,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    Color? tileColor;
-    if (isSubmitted) {
-      if (option == correctAnswer) {
-        tileColor = Colors.green.withOpacity(0.3);
-      } else if (option == selectedAnswer) {
-        tileColor = Colors.red.withOpacity(0.3);
-      }
-    }
-
-    return ListTile(
-      title: Text(option),
-      leading: Radio<String>(
-        value: option,
-        groupValue: selectedAnswer,
-        onChanged: onChanged,
-      ),
-      tileColor: tileColor,
     );
   }
 }
