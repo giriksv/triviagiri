@@ -4,5 +4,9 @@ class CategoryUtils {
     'History',
     'AI',
     'Culture',
+    'Social',
+    'Maths',
+    'KCCR',
+    'KSV',
   ];
 }
