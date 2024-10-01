@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:google_fonts/google_fonts.dart'; // Import for Google Fonts
 import '../controller/all_db_controller.dart';
 import '../model/single_player_quiz_model.dart';
 import '../utils/categoryutils.dart';
 import '../utils/custom_app_bar.dart';
+import 'modeselection_screen.dart';
 import 'quiz_screen.dart';
 
 class CategoryScreen extends StatefulWidget {
@@ -41,7 +42,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => QuizScreen(quizzes: quizzes, category: category),
+        builder: (context) => QuizScreen(
+          quizzes: quizzes,
+          category: category,
+        ),
       ),
     );
   }
@@ -49,40 +53,68 @@ class _CategoryScreenState extends State<CategoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar(), // Call the custom app bar here
+      appBar: customAppBar(
+        showBackButton: true, // Show the back button
+        onBackPressed: () {
+          // Navigate back to ModeSelectionScreen when back arrow is clicked
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ModeSelectionScreen(email: widget.email),
+            ),
+          );
+        },
+      ),
       body: Container(
         color: Color(0xFFFFEDEC), // Background color
-        child: Center( // Center the button column
-          child: SingleChildScrollView( // Use SingleChildScrollView
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center, // Center buttons vertically
-              children: List.generate(_categories.length, (index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SizedBox(
-                    width: 250, // Set a fixed width for buttons
-                    child: ElevatedButton(
-                      onPressed: () => _selectCategory(context, _categories[index]),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _buttonColors[index % _buttonColors.length],
-                        padding: EdgeInsets.symmetric(vertical: 12), // Reduced vertical padding
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30), // Rounded edges
-                        ),
-                      ),
-                      child: Text(
-                        _categories[index],
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18, // Font size for button text
-                        ),
-                      ),
-                    ),
+        child: Center(
+          child: Column(
+            children: [
+              SizedBox(height: 20), // Add some space below the AppBar
+              Text(
+                'Choose Your Category',
+                style: GoogleFonts.outfit(
+                  textStyle: TextStyle(
+                    fontSize: 28, // Font size for the heading
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFC85E7E), // Pink color
                   ),
-                );
-              }),
-            ),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 20), // Space between the heading and buttons
+              SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(_categories.length, (index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        width: 250, // Set a fixed width for buttons
+                        child: ElevatedButton(
+                          onPressed: () => _selectCategory(context, _categories[index]),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _buttonColors[index % _buttonColors.length],
+                            padding: EdgeInsets.symmetric(vertical: 12), // Reduced vertical padding
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30), // Rounded edges
+                            ),
+                          ),
+                          child: Text(
+                            _categories[index],
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18, // Font size for button text
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            ],
           ),
         ),
       ),

@@ -1,4 +1,4 @@
-import 'dart:async'; // Import for Timer
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,7 +7,7 @@ import '../utils/custom_app_bar.dart';
 import 'settings_screen.dart';
 import '../controller/all_db_controller.dart';
 import '../controller/single_player_quiz_controller.dart';
-import '../model/single_player_quiz_model.dart'; // Import custom AppBar
+import '../model/single_player_quiz_model.dart';
 
 const int pointsPerCorrectAnswer = 5;
 const int questionTimeLimit = 10; // Time limit per question in seconds
@@ -40,7 +40,7 @@ class _QuizScreenState extends State<QuizScreen> {
 
   @override
   void dispose() {
-    _timer?.cancel(); // Cancel the timer when disposing the widget
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -59,7 +59,7 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _startTimer() {
-    _timer?.cancel(); // Cancel any existing timer
+    _timer?.cancel();
     setState(() {
       _remainingTime = questionTimeLimit;
     });
@@ -91,7 +91,7 @@ class _QuizScreenState extends State<QuizScreen> {
     }
 
     if (userEmail != null) {
-      _timer?.cancel(); // Cancel the timer as the user has submitted an answer
+      _timer?.cancel();
       try {
         if (_selectedAnswer == correctAnswer) {
           await _quizController.addPoints(userEmail, pointsPerCorrectAnswer);
@@ -124,18 +124,18 @@ class _QuizScreenState extends State<QuizScreen> {
         _correctAnswer = null;
         _selectedAnswer = null;
       });
-      _saveCurrentQuestionIndex(); // Save index after moving to the next question
-      _startTimer(); // Restart the timer for the next question
+      _saveCurrentQuestionIndex();
+      _startTimer();
     } else {
       _showCompletionDialog();
     }
   }
 
   void _showCompletionDialog() {
-    _timer?.cancel(); // Cancel any existing timer
+    _timer?.cancel();
     showDialog(
       context: context,
-      barrierDismissible: false, // Prevent dismissal by tapping outside
+      barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
           title: Text('Quiz Completed'),
@@ -144,7 +144,7 @@ class _QuizScreenState extends State<QuizScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _resetQuiz(); // Reset quiz if needed
+                _resetQuiz();
               },
               child: Text('Finish'),
             ),
@@ -156,19 +156,19 @@ class _QuizScreenState extends State<QuizScreen> {
 
   void _resetQuiz() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('${widget.category}_currentQuestionIndex'); // Reset index for the current category
-    Navigator.pop(context); // Go back to the previous screen
+    await prefs.remove('${widget.category}_currentQuestionIndex');
+    Navigator.pop(context);
   }
 
   void _showCorrectAnswerDialog() {
     showDialog(
       context: context,
-      barrierDismissible: true, // Allow dismissal by tapping outside
+      barrierDismissible: true,
       builder: (context) {
         return GestureDetector(
           onTap: () {
-            Navigator.of(context).pop(); // Close the dialog
-            _moveToNextQuestion(); // Move to the next question
+            Navigator.of(context).pop();
+            _moveToNextQuestion();
           },
           child: AlertDialog(
             title: Text('Incorrect Answer'),
@@ -187,8 +187,8 @@ class _QuizScreenState extends State<QuizScreen> {
   Widget build(BuildContext context) {
     if (widget.quizzes.isEmpty) {
       return Scaffold(
-        appBar: customAppBar(), // Use custom AppBar
-        backgroundColor: BackgroundColorUtils.backgroundColor, // Set background color
+        appBar: customAppBar(), // Fixed AppBar
+        backgroundColor: BackgroundColorUtils.backgroundColor,
         body: Center(
           child: Text('No quizzes available in this category.'),
         ),
@@ -198,15 +198,14 @@ class _QuizScreenState extends State<QuizScreen> {
     final quiz = widget.quizzes[_currentQuestionIndex];
 
     return Scaffold(
-      appBar: customAppBar(), // Use custom AppBar
-      backgroundColor: BackgroundColorUtils.backgroundColor, // Set background color
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Quiz and Timer Text with Icon
-            Row(
+      appBar: customAppBar(), // Fixed AppBar
+      backgroundColor: BackgroundColorUtils.backgroundColor,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
@@ -225,81 +224,89 @@ class _QuizScreenState extends State<QuizScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 20),
-
-            // Question Container with white background and border
-            Container(
+          ),
+          Expanded(
+            child: Padding(
               padding: EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24.0), // More curved edges
-                border: Border.all(
-                  color: Color(0xFFFA7B95), // Border color
-                  width: 4.0,
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  quiz.question,
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-
-            // Answer Options as Buttons
-            Column(
-              children: [
-                ...[quiz.optionA, quiz.optionB, quiz.optionC, quiz.optionD].map(
-                      (option) {
-                    final isSelected = _selectedAnswer == option;
-                    return Container(
-                      margin: EdgeInsets.symmetric(vertical: 5),
-                      child: ElevatedButton(
-                        onPressed: _isAnswerSubmitted
-                            ? null
-                            : () {
-                          setState(() {
-                            _selectedAnswer = option;
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isSelected ? Color(0xFFEAB834) : Color(0xFFFA7B95), // Change color if selected
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24), // More curved edges
-                          ),
-                          minimumSize: Size(double.infinity, 50), // Full-width buttons
-                        ),
-                        child: Text(
-                          option,
-                          style: TextStyle(fontSize: 18, color: Colors.white), // White text
-                        ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Question Container
+                  Container(
+                    padding: EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24.0),
+                      border: Border.all(
+                        color: Color(0xFFFA7B95),
+                        width: 4.0,
                       ),
-                    );
-                  },
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
+                    ),
+                    child: Center(
+                      child: Text(
+                        quiz.question,
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
 
-            // Submit Button
-            ElevatedButton(
-              onPressed: (_isAnswerSubmitted || _remainingTime == 0) ? null : _checkAnswer,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF01CCCA), // Submit button color
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24), // More curved edges
-                ),
-                minimumSize: Size(double.infinity, 50), // Full-width button
-              ),
-              child: Text(
-                'Submit',
-                style: TextStyle(fontSize: 18, color: Colors.white), // White text
+                  // Answer Options as Buttons
+                  Column(
+                    children: [
+                      ...[quiz.optionA, quiz.optionB, quiz.optionC, quiz.optionD].map(
+                            (option) {
+                          final isSelected = _selectedAnswer == option;
+                          return Container(
+                            margin: EdgeInsets.symmetric(vertical: 5),
+                            child: ElevatedButton(
+                              onPressed: _isAnswerSubmitted
+                                  ? null
+                                  : () {
+                                setState(() {
+                                  _selectedAnswer = option;
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: isSelected ? Color(0xFFEAB834) : Color(0xFFFA7B95),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                minimumSize: Size(double.infinity, 50),
+                              ),
+                              child: Text(
+                                option,
+                                style: TextStyle(fontSize: 18, color: Colors.white),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+
+                  // Submit Button
+                  ElevatedButton(
+                    onPressed: (_isAnswerSubmitted || _remainingTime == 0) ? null : _checkAnswer,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF01CCCA),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      minimumSize: Size(double.infinity, 50),
+                    ),
+                    child: Text(
+                      'Submit Answer',
+                      style: TextStyle(fontSize: 20, color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

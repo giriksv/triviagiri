@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart'; // Ensure you have the Google Fonts package for Outfit
 
-AppBar customAppBar() {
+AppBar customAppBar({bool showBackButton = false, VoidCallback? onBackPressed}) {
   return AppBar(
     title: ShaderMask(
       shaderCallback: (bounds) => LinearGradient(
@@ -15,43 +14,31 @@ AppBar customAppBar() {
       ).createShader(bounds),
       child: Text(
         'Trivia',
-        style: GoogleFonts.outfit(
-          textStyle: TextStyle(
-            fontSize: 54, // Font size: 54px
-            fontWeight: FontWeight.w800, // Font weight: 800
-            letterSpacing: 0.75, // Letter spacing: 0.75em
-            height: 68.84 / 54, // Line-height: Adjusted for 54px
-            color: Colors.white, // Default color to make text visible with gradient
-            shadows: [
-              // Create a shadow effect to simulate a border
-              Shadow(
-                offset: Offset(2, 2), // Slightly offset shadow for bottom-right
-                color: Colors.black, // Border color
-                blurRadius: 5.0, // Blur radius for the shadow
-              ),
-              Shadow(
-                offset: Offset(-2, 2), // Slightly offset shadow for bottom-left
-                color: Colors.black, // Border color
-                blurRadius: 5.0, // Blur radius for the shadow
-              ),
-              Shadow(
-                offset: Offset(2, -2), // Slightly offset shadow for top-right
-                color: Colors.black, // Border color
-                blurRadius: 5.0, // Blur radius for the shadow
-              ),
-              Shadow(
-                offset: Offset(-2, -2), // Slightly offset shadow for top-left
-                color: Colors.black, // Border color
-                blurRadius: 5.0, // Blur radius for the shadow
-              ),
-            ],
-          ),
+        style: TextStyle(
+          fontSize: 54, // Font size
+          fontWeight: FontWeight.w800, // Font weight
+          letterSpacing: 0.75, // Letter spacing
+          height: 68.84 / 54, // Line-height
+          color: Colors.white, // Text color
+          shadows: [
+            Shadow(
+              offset: Offset(2, 2), // Shadow offset
+              color: Colors.black, // Shadow color
+              blurRadius: 5.0, // Blur radius
+            ),
+          ],
         ),
         textAlign: TextAlign.center, // Align text to the center
       ),
     ),
     centerTitle: true,
     backgroundColor: Color(0xFFFFEDEC),
-    elevation: 4, // Optionally add elevation for a shadow effect
+    elevation: 4,
+    leading: showBackButton
+        ? IconButton(
+      icon: Icon(Icons.arrow_back),
+      onPressed: onBackPressed, // Call the function passed
+    )
+        : null, // No back button if not required
   );
 }
