@@ -43,6 +43,7 @@ class AuthController {
         character: '', // Set default or fetched character here
         name: googleUser.displayName ?? '', // Fetch the display name
         points: 20,
+        categoryPoints: {},
       );
     } catch (e) {
       print("Error signing in with Google: ${e.toString()}");

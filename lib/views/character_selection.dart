@@ -35,7 +35,7 @@ class CharacterSelectionScreen extends StatelessWidget {
   final AllDBController _dbController = AllDBController();
 
   void _selectCharacter(BuildContext context, String character) async {
-    UserModel user = UserModel(email: email, character: character, name: name, points: 50);
+    UserModel user = UserModel(email: email, character: character, name: name, points: 50, categoryPoints: {});
     await _dbController.insertUserData(user); // Insert user data into Firestore
 
     Navigator.pushReplacement(

@@ -1,7 +1,9 @@
+// controller/single_player_quiz_controller.dart is already updated above
+
+// screen/quiz_screen.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/background_color_utils.dart';
 import '../utils/custom_app_bar.dart';
 import 'settings_screen.dart';
@@ -31,11 +33,23 @@ class _QuizScreenState extends State<QuizScreen> {
   String? _correctAnswer;
   Timer? _timer;
   int _remainingTime = questionTimeLimit;
+  String? _userEmail;
 
   @override
   void initState() {
     super.initState();
-    _loadCurrentQuestionIndex();
+    _userEmail = FirebaseAuth.instance.currentUser?.email;
+    if (_userEmail != null) {
+      _loadCurrentQuestionIndex();
+    } else {
+      // Handle user not logged in
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User not logged in.')),
+        );
+        Navigator.pop(context);
+      });
+    }
   }
 
   @override
@@ -45,8 +59,9 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   Future<void> _loadCurrentQuestionIndex() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int savedIndex = prefs.getInt('${widget.category}_currentQuestionIndex') ?? 0;
+    if (_userEmail == null) return;
+
+    int savedIndex = await _dbController.getCurrentQuestionIndex(_userEmail!, widget.category);
     setState(() {
       _currentQuestionIndex = savedIndex < widget.quizzes.length ? savedIndex : 0;
     });
@@ -54,8 +69,9 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   Future<void> _saveCurrentQuestionIndex() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('${widget.category}_currentQuestionIndex', _currentQuestionIndex);
+    if (_userEmail == null) return;
+
+    await _dbController.setCurrentQuestionIndex(_userEmail!, widget.category, _currentQuestionIndex);
   }
 
   void _startTimer() {
@@ -80,7 +96,13 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _checkAnswer() async {
-    final userEmail = FirebaseAuth.instance.currentUser?.email;
+    if (_userEmail == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('User not logged in.')),
+      );
+      return;
+    }
+
     final correctAnswer = widget.quizzes[_currentQuestionIndex].correctAnswer;
 
     if (_selectedAnswer == null) {
@@ -90,29 +112,23 @@ class _QuizScreenState extends State<QuizScreen> {
       return;
     }
 
-    if (userEmail != null) {
-      _timer?.cancel();
-      try {
-        if (_selectedAnswer == correctAnswer) {
-          await _quizController.addPoints(userEmail, pointsPerCorrectAnswer);
-          _moveToNextQuestion();
-        } else {
-          setState(() {
-            _isAnswerSubmitted = true;
-            _correctAnswer = correctAnswer;
-          });
-          _showCorrectAnswerDialog();
-        }
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('An error occurred. Please try again.')),
-        );
-        print('Error updating points: $e');
+    _timer?.cancel();
+    try {
+      if (_selectedAnswer == correctAnswer) {
+        await _quizController.addPoints(_userEmail!, pointsPerCorrectAnswer, widget.category);
+        _moveToNextQuestion();
+      } else {
+        setState(() {
+          _isAnswerSubmitted = true;
+          _correctAnswer = correctAnswer;
+        });
+        _showCorrectAnswerDialog();
       }
-    } else {
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('User not logged in.')),
+        SnackBar(content: Text('An error occurred. Please try again.')),
       );
+      print('Error updating points: $e');
     }
   }
 
@@ -155,8 +171,9 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _resetQuiz() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('${widget.category}_currentQuestionIndex');
+    if (_userEmail == null) return;
+
+    await _dbController.setCurrentQuestionIndex(_userEmail!, widget.category, 0);
     Navigator.pop(context);
   }
 
