@@ -13,7 +13,7 @@ class LeaderBoardScreen extends StatelessWidget {
         stream: FirebaseFirestore.instance
             .collection('users')
             .orderBy('points',
-                descending: true) // Order by points in descending order
+            descending: true) // Order by points in descending order
             .limit(5) // Limit to top 5 users
             .snapshots(), // Use snapshots for real-time updates
         builder: (context, snapshot) {
@@ -43,7 +43,7 @@ class LeaderBoardScreen extends StatelessWidget {
 
               // Safely check for 'name' and 'points' fields
               var userData =
-                  user.data() as Map<String, dynamic>?; // Cast to Map
+              user.data() as Map<String, dynamic>?; // Cast to Map
               String userName = userData?['name'] ?? 'Unknown User';
               String userPoints = userData?['points']?.toString() ?? '0';
 

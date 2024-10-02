@@ -63,7 +63,8 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => ModeSelectionScreen(email: user.email!)),
+          builder: (context) => ModeSelectionScreen(email: user.email!),
+        ),
       );
     } else {
       Navigator.pushReplacement(
