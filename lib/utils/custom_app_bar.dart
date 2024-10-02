@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-AppBar customAppBar({bool showBackButton = false, VoidCallback? onBackPressed}) {
+AppBar customAppBar({bool showBackButton = false, VoidCallback? onBackPressed, }) {
   return AppBar(
     title: ShaderMask(
       shaderCallback: (bounds) => LinearGradient(
