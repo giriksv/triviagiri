@@ -14,7 +14,7 @@ class CharacterSelectionScreen extends StatelessWidget {
   CharacterSelectionScreen({
     required this.email,
     required this.name,
-    this.points = 20,
+    required this.points,
   });
 
   final List<String> characters = ['Boy', 'Girl', 'Tiger', 'Robo'];
@@ -25,17 +25,10 @@ class CharacterSelectionScreen extends StatelessWidget {
     Color(0xFF7D7E80), // Border color for 'Robo'
   ];
 
-  // final List<String> emojis = [
-  //   '👦', // Emoji for 'Boy'
-  //   '👧', // Emoji for 'Girl'
-  //   '🐯', // Emoji for 'Tiger'
-  //   '🤖', // Emoji for 'Robo'
-  // ];
-
   final AllDBController _dbController = AllDBController();
 
   void _selectCharacter(BuildContext context, String character) async {
-    int updatedPoints = points + 5;
+    int updatedPoints = points ;
 
     // Create a UserModel instance with the updated points
     UserModel user = UserModel(
@@ -121,25 +114,6 @@ class CharacterSelectionScreen extends StatelessWidget {
                                     : null,
                               ),
                             ),
-                            // Conditional emoji placement based on index
-                            // if (index % 2 == 0) // Left side
-                            //   Positioned(
-                            //     bottom: 5,
-                            //     left: 5,
-                            //     child: Text(
-                            //       emojis[index],
-                            //       style: TextStyle(fontSize: 24), // Adjust the size of the emoji
-                            //     ),
-                            //   )
-                            // else // Right side
-                            //   Positioned(
-                            //     top: 5,
-                            //     right: 5,
-                            //     child: Text(
-                            //       emojis[index],
-                            //       style: TextStyle(fontSize: 24), // Adjust the size of the emoji
-                            //     ),
-                            //   ),
                           ],
                         ),
                         SizedBox(height: 10),

@@ -42,7 +42,7 @@ class AuthController {
         email: googleUser.email,
         character: '', // Set default or fetched character here
         name: googleUser.displayName ?? '', // Fetch the display name
-        points: 20,
+        points: 50,
         categoryPoints: {},
       );
     } catch (e) {

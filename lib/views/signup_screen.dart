@@ -34,7 +34,7 @@ class _SignupScreenState extends State<SignupScreen> {
             builder: (context) => CharacterSelectionScreen(
               email: user.email,
               name: user.name,
-              points: 20, // Pass the points here
+              points: 0, // Pass the points here
             ),
           ),
         );

@@ -30,7 +30,7 @@ class UserModel {
       email: map['email'] ?? '',
       character: map['character'] ?? '',
       name: map['name'] ?? '',
-      points: map['points'] ?? 20,
+      points: map['points'] ?? 0,
       categoryPoints: Map<String, int>.from(map['categoryPoints'] ?? {}), // Safely map category points
     );
   }
