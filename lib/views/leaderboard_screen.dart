@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../utils/background_color_utils.dart';
 import '../utils/custom_app_bar.dart';
 import '../utils/gifutils.dart';
+import 'CategoryPointsScreen.dart';
 import 'comparison_screen.dart';
 
 class LeaderBoardScreen extends StatefulWidget {
@@ -76,9 +77,16 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                       ),
                       SizedBox(height: 8),
                       // Points Button
+// Inside the GestureDetector for the Total Points button
                       GestureDetector(
                         onTap: () {
-                          // Navigate to AchievementScreen or perform another action
+                          // Navigate to the CategoryPointsScreen and pass the current user's email
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CategoryPointsScreen(userEmail: currentUserEmail!, userName: '',),
+                            ),
+                          );
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),

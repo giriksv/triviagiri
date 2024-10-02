@@ -25,19 +25,31 @@ class CharacterSelectionScreen extends StatelessWidget {
     Color(0xFF7D7E80), // Border color for 'Robo'
   ];
 
-  final List<String> emojis = [
-    '👦', // Emoji for 'Boy'
-    '👧', // Emoji for 'Girl'
-    '🐯', // Emoji for 'Tiger'
-    '🤖', // Emoji for 'Robo'
-  ];
+  // final List<String> emojis = [
+  //   '👦', // Emoji for 'Boy'
+  //   '👧', // Emoji for 'Girl'
+  //   '🐯', // Emoji for 'Tiger'
+  //   '🤖', // Emoji for 'Robo'
+  // ];
 
   final AllDBController _dbController = AllDBController();
 
   void _selectCharacter(BuildContext context, String character) async {
-    UserModel user = UserModel(email: email, character: character, name: name, points: 50, categoryPoints: {});
-    await _dbController.insertUserData(user); // Insert user data into Firestore
+    int updatedPoints = points + 5;
 
+    // Create a UserModel instance with the updated points
+    UserModel user = UserModel(
+      email: email,
+      character: character,
+      name: name,
+      points: updatedPoints, // Use the updated points
+      categoryPoints: {},
+    );
+
+    // Insert user data into Firestore
+    await _dbController.insertUserData(user);
+
+    // Navigate to the ModeSelectionScreen
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -110,24 +122,24 @@ class CharacterSelectionScreen extends StatelessWidget {
                               ),
                             ),
                             // Conditional emoji placement based on index
-                            if (index % 2 == 0) // Left side
-                              Positioned(
-                                bottom: 5,
-                                left: 5,
-                                child: Text(
-                                  emojis[index],
-                                  style: TextStyle(fontSize: 24), // Adjust the size of the emoji
-                                ),
-                              )
-                            else // Right side
-                              Positioned(
-                                top: 5,
-                                right: 5,
-                                child: Text(
-                                  emojis[index],
-                                  style: TextStyle(fontSize: 24), // Adjust the size of the emoji
-                                ),
-                              ),
+                            // if (index % 2 == 0) // Left side
+                            //   Positioned(
+                            //     bottom: 5,
+                            //     left: 5,
+                            //     child: Text(
+                            //       emojis[index],
+                            //       style: TextStyle(fontSize: 24), // Adjust the size of the emoji
+                            //     ),
+                            //   )
+                            // else // Right side
+                            //   Positioned(
+                            //     top: 5,
+                            //     right: 5,
+                            //     child: Text(
+                            //       emojis[index],
+                            //       style: TextStyle(fontSize: 24), // Adjust the size of the emoji
+                            //     ),
+                            //   ),
                           ],
                         ),
                         SizedBox(height: 10),
