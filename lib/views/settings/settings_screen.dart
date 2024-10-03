@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../utils/background_color_utils.dart';
-import '../utils/custom_app_bar.dart';
+import '../../utils/background_color_utils.dart';
+import '../../utils/custom_app_bar.dart';
 import 'profile_screen.dart';
 import 'leaderboard_screen.dart';
 //import 'daily_rewards.dart';

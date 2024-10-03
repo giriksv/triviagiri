@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../utils/background_color_utils.dart';
 import '../utils/custom_app_bar.dart';
-import 'settings_screen.dart';
+import 'settings/settings_screen.dart';
 import '../controller/all_db_controller.dart';
 import '../controller/single_player_quiz_controller.dart';
 import '../model/single_player_quiz_model.dart';

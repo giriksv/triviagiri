@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../utils/background_color_utils.dart';
-import '../utils/custom_app_bar.dart';
-import '../utils/gifutils.dart';
+import '../../utils/background_color_utils.dart';
+import '../../utils/custom_app_bar.dart';
+import '../../utils/gifutils.dart';
 import 'CategoryPointsScreen.dart';
 import 'comparison_screen.dart';
 

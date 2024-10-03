@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../utils/background_color_utils.dart';
-import '../utils/custom_app_bar.dart';
-import '../utils/gifutils.dart';
+import '../../utils/background_color_utils.dart';
+import '../../utils/custom_app_bar.dart';
+import '../../utils/gifutils.dart';
 
 class CategoryPointsScreen extends StatefulWidget {
   final String userEmail;
@@ -14,7 +14,7 @@ class CategoryPointsScreen extends StatefulWidget {
 }
 
 class _CategoryPointsScreenState extends State<CategoryPointsScreen> {
-  String selectedCharacter = 'Boy'; // Default character
+  String selectedCharacter = ''; // Default character
   Map<String, dynamic>? userData;
 
   @override
@@ -34,7 +34,7 @@ class _CategoryPointsScreenState extends State<CategoryPointsScreen> {
       if (userSnapshot.exists) {
         setState(() {
           userData = userSnapshot.data() as Map<String, dynamic>;
-          selectedCharacter = userData!['selectedCharacter'] ?? 'Boy'; // Update selected character if available
+          selectedCharacter = userData!['selectedCharacter'] ?? '';
         });
         print('User data fetched: $userData');
       } else {
@@ -168,8 +168,7 @@ class _CategoryPointsScreenState extends State<CategoryPointsScreen> {
                 ],
               ),
             ),
-            // Scrollable container for category points
-// Scrollable container for category points
+
             Expanded(
               child: SingleChildScrollView(
                 child: Container(

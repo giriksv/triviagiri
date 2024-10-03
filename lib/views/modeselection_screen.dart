@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'category_screen.dart';
 import '../multiplayer/multi_player_views/room_type_screen.dart'; // Import the RoomTypeScreen
-import 'leaderboard_screen.dart'; // Import your leaderboard screen
-import 'settings_screen.dart'; // Import your settings screen
+import 'settings/leaderboard_screen.dart'; // Import your leaderboard screen
+import 'settings/settings_screen.dart'; // Import your settings screen
 
 class ModeSelectionScreen extends StatefulWidget {
   final String email;
