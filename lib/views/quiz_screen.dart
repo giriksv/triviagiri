@@ -1,5 +1,3 @@
-// controller/single_player_quiz_controller.dart is already updated above
-
 // screen/quiz_screen.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -10,6 +8,7 @@ import 'settings_screen.dart';
 import '../controller/all_db_controller.dart';
 import '../controller/single_player_quiz_controller.dart';
 import '../model/single_player_quiz_model.dart';
+import 'wrong_answer_dialog.dart';
 
 const int pointsPerCorrectAnswer = 5;
 const int questionTimeLimit = 10; // Time limit per question in seconds
@@ -38,17 +37,11 @@ class _QuizScreenState extends State<QuizScreen> {
   @override
   void initState() {
     super.initState();
-    _userEmail = FirebaseAuth.instance.currentUser?.email;
+    _userEmail = FirebaseAuth.instance.currentUser?.email; // Email might be null
     if (_userEmail != null) {
       _loadCurrentQuestionIndex();
     } else {
-      // Handle user not logged in
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User not logged in.')),
-        );
-        Navigator.pop(context);
-      });
+      _handleUserNotLoggedIn();
     }
   }
 
@@ -187,16 +180,22 @@ class _QuizScreenState extends State<QuizScreen> {
             Navigator.of(context).pop();
             _moveToNextQuestion();
           },
-          child: AlertDialog(
-            title: Text('Incorrect Answer'),
-            content: Text('The correct answer is: $_correctAnswer'),
-          ),
+          child: WrongAnswerDialog(correctAnswer: _correctAnswer, onNext: () {}),
         );
       },
     ).then((_) {
       if (mounted) {
         _moveToNextQuestion();
       }
+    });
+  }
+
+  void _handleUserNotLoggedIn() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('User not logged in.')),
+      );
+      Navigator.pop(context);
     });
   }
 
@@ -316,7 +315,7 @@ class _QuizScreenState extends State<QuizScreen> {
                     ),
                     child: Text(
                       'Submit Answer',
-                      style: TextStyle(fontSize: 20, color: Colors.white),
+                      style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),
                 ],
