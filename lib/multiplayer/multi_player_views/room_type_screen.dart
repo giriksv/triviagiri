@@ -15,46 +15,7 @@ class RoomTypeScreen extends StatelessWidget {
     print('RoomTypeScreen: build called'); // Debug statement
 
     return Scaffold(
-      appBar: AppBar(
-        title: ShaderMask(
-          shaderCallback: (bounds) => LinearGradient(
-            colors: [
-              Color(0xFF04143C),
-              Color(0xFFFB7290),
-              Color(0xFFF7C6BF),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ).createShader(bounds),
-          child: Text(
-            'Trivia',
-            style: TextStyle(
-              fontSize: 54,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.75,
-              height: 68.84 / 54,
-              color: Colors.white,
-              shadows: [
-                Shadow(
-                  offset: Offset(2, 2),
-                  color: Colors.black,
-                  blurRadius: 5.0,
-                ),
-              ],
-            ),
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Color(0xFFFFEDEC),
-        elevation: 4,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            print('Back button pressed'); // Debug statement
-            Navigator.pop(context, email);  // Passing email back when popping
-          },
-        ),
-      ),
+      appBar: customAppBar(),  // Use the custom AppBar
       backgroundColor: BackgroundColorUtils.backgroundColor,
       body: Center(
         child: Column(
