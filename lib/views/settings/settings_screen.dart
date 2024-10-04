@@ -20,9 +20,9 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar(
-        showBackButton: false,
-      ),
+      // appBar: customAppBar(
+      //   showBackButton: false,
+      // ),
       body: Container(
         color: BackgroundColorUtils.backgroundColor,
         padding: const EdgeInsets.all(16.0),

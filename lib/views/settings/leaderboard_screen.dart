@@ -43,12 +43,12 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar(
-        showBackButton: true,
-        onBackPressed: () {
-          Navigator.pop(context); // Navigate to the previous screen
-        },
-      ),
+      // appBar: customAppBar(
+      //   showBackButton: true,
+      //   onBackPressed: () {
+      //     Navigator.pop(context); // Navigate to the previous screen
+      //   },
+      // ),
       body: Container(
         color: BackgroundColorUtils.backgroundColor,
         child: Column(
