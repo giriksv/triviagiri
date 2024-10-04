@@ -35,9 +35,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   Future<void> updateUserTimestamp() async {
     await _dbController.updateUserTimestamp(widget.email);
+    print('User timestamp updated for email: ${widget.email}'); // Debugging statement
   }
 
   void _selectCategory(BuildContext context, String category) async {
+    print('Category selected: $category'); // Debugging statement
     List<QuizModel> quizzes = await _dbController.getQuizzesByCategory(category);
     Navigator.push(
       context,
@@ -56,13 +58,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
       appBar: customAppBar(
         showBackButton: true, // Show the back button
         onBackPressed: () {
-          // Navigate back to ModeSelectionScreen when back arrow is clicked
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ModeSelectionScreen(email: widget.email),
-            ),
-          );
+          // Print debug statement for back press
+          print('Back button pressed in CategoryScreen');
+          // Navigate back and pass the email to the ModeSelectionScreen
+          Navigator.pop(context, widget.email);
         },
       ),
       body: Container(

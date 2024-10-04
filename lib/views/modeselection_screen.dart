@@ -96,14 +96,22 @@ class _ModeSelectionScreenState extends State<ModeSelectionScreen> {
             ),
             SizedBox(height: 40),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 print('Single Player button pressed'); // Debug statement
-                Navigator.pushReplacement(
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => CategoryScreen(email: widget.email),
                   ),
                 );
+
+                // Check if email is returned when back button is pressed.
+                if (result != null) {
+                  print('Returned email from CategoryScreen: $result');
+                  setState(() {
+                    widget.email = result;  // Update email after navigating back.
+                  });
+                }
               },
               child: Text(
                 "Single Player",
