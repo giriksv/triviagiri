@@ -1,14 +1,14 @@
-import 'dart:async'; // Import Timer
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../utils/background_color_utils.dart';
 import '../../utils/custom_app_bar.dart';
 import '../multi_player_controller/MultiplayerQuizController.dart';
 import 'ViewResultsScreen.dart';
-import '../../utils/roomdeletion_utils.dart'; // Import the room deletion utils for the dialog
+import '../../utils/roomdeletion_utils.dart';
 
 class MultiplayerQuizScreen extends StatefulWidget {
   final String roomId;
-  final String category; // Category passed from the room
+  final String category;
   final String userEmail;
 
   MultiplayerQuizScreen({
@@ -32,7 +32,7 @@ class _MultiplayerQuizScreenState extends State<MultiplayerQuizScreen> {
   bool _isLoading = false;
 
   Timer? _timer;
-  int _remainingTime = 7; // Initialize with 10 seconds for each question
+  int _remainingTime = 7;
 
   @override
   void initState() {
@@ -42,7 +42,7 @@ class _MultiplayerQuizScreenState extends State<MultiplayerQuizScreen> {
 
   @override
   void dispose() {
-    _timer?.cancel(); // Cancel the timer when the widget is disposed
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -51,52 +51,44 @@ class _MultiplayerQuizScreenState extends State<MultiplayerQuizScreen> {
       _isLoading = true;
     });
 
-    // Load all questions from the CSV
     final allQuestions = await controller.loadQuestions();
-
-    // Filter questions based on the category and limit to the first 5
     final filteredQuestions = allQuestions
         .where((question) => question['category'].toString().trim() == widget.category.trim())
         .toList()
         .take(5)
-        .toList(); // Limit to 5 questions
+        .toList();
 
     setState(() {
       _questions = filteredQuestions;
       _isLoading = false;
     });
 
-    // Start the timer for the first question
     _startTimer();
   }
 
   void _startTimer() {
-    // Reset the timer to 10 seconds
-    _remainingTime = 10;
-
-    _timer?.cancel(); // Cancel any existing timer
-
+    _remainingTime = 7;
+    _timer?.cancel();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         if (_remainingTime > 0) {
           _remainingTime--;
         } else {
           _timer?.cancel();
-          _autoSubmitAnswer(); // Automatically move to the next question
+          _autoSubmitAnswer();
         }
       });
     });
   }
 
   void _autoSubmitAnswer() {
-    // Automatically move to the next question if no answer is selected
     if (_currentQuestionIndex < _questions.length - 1) {
       setState(() {
         _currentQuestionIndex++;
         _selectedAnswer = null;
         _correctAnswer = null;
       });
-      _startTimer(); // Start the timer for the next question
+      _startTimer();
     } else {
       setState(() {
         _isQuizCompleted = true;
@@ -112,13 +104,11 @@ class _MultiplayerQuizScreenState extends State<MultiplayerQuizScreen> {
       _correctAnswer = correctAnswer;
     });
 
-    // Check if the answer is correct
     if (_selectedAnswer == correctAnswer) {
       setState(() {
-        _roomPoints += 5; // Add points to the UI immediately
+        _roomPoints += 5;
       });
 
-      // Update points asynchronously without blocking the UI
       controller.updateRoomPoints(widget.roomId, widget.userEmail).catchError((error) {
         print('Error updating room points: $error');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -134,16 +124,15 @@ class _MultiplayerQuizScreenState extends State<MultiplayerQuizScreen> {
       });
     }
 
-    _timer?.cancel(); // Cancel the timer when the answer is submitted
+    _timer?.cancel();
 
-    // Move to the next question immediately
     if (_currentQuestionIndex < _questions.length - 1) {
       setState(() {
         _currentQuestionIndex++;
-        _selectedAnswer = null; // Reset selected answer for the next question
+        _selectedAnswer = null;
         _correctAnswer = null;
       });
-      _startTimer(); // Restart the timer for the next question
+      _startTimer();
     } else {
       setState(() {
         _isQuizCompleted = true;
@@ -152,92 +141,148 @@ class _MultiplayerQuizScreenState extends State<MultiplayerQuizScreen> {
   }
 
   Widget _buildOptionButton(String optionText, String optionValue) {
-    return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          _selectedAnswer = optionValue;
-        });
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: _selectedAnswer == optionValue
-            ? Colors.green.shade300
-            : Colors.grey.shade300,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: ElevatedButton(
+        onPressed: () {
+          setState(() {
+            _selectedAnswer = optionValue;
+          });
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _selectedAnswer == optionValue
+              ? Colors.green.shade300
+              : Color(0xFFFA7B95),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+        ),
+        child: Text(
+          optionText,
+          style: TextStyle(color: Colors.white, fontSize: 16),
+          textAlign: TextAlign.center,
+        ),
       ),
-      child: Text(optionText),
     );
   }
 
   Future<bool> _onWillPop() async {
-    // Show dialog to confirm if the user wants to leave the room
     await showLeaveRoomDialog(
       context: context,
       userEmail: widget.userEmail,
-      roomId: widget.roomId, email: '', userName: '',
+      roomId: widget.roomId,
+      email: '',
+      userName: '',
     );
 
-    return Future.value(false); // Prevent default back navigation
+    return Future.value(false);
   }
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    final screenHeight = mediaQuery.size.height;
+
     return WillPopScope(
-      onWillPop: _onWillPop, // Override back button action
+      onWillPop: _onWillPop,
       child: Scaffold(
-        appBar: customAppBar(),  // Use the custom AppBar
+        appBar: customAppBar(),
         backgroundColor: BackgroundColorUtils.backgroundColor,
         body: _isLoading
             ? Center(child: CircularProgressIndicator())
             : _questions.isEmpty
             ? Center(child: Text('No questions available for this category.'))
-            : Column(
-          children: [
-            if (_isQuizCompleted)
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ViewResultsScreen(
-                        roomId: widget.roomId,
-                        userEmail: widget.userEmail, userName: '',),
+            : SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Quiz: ${_currentQuestionIndex + 1}/${_questions.length}",
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                  );
-                },
-                child: Text('View Results'),
-              )
-            else ...[
-              Text("Question ${_currentQuestionIndex + 1}/${_questions.length}"),
-              SizedBox(height: 20),
-              Text(
-                _questions[_currentQuestionIndex]['question'],
-                style: TextStyle(fontSize: 20),
-              ),
-              SizedBox(height: 20),
-              _buildOptionButton(
-                  _questions[_currentQuestionIndex]['optionA'],
-                  _questions[_currentQuestionIndex]['optionA']),
-              _buildOptionButton(
-                  _questions[_currentQuestionIndex]['optionB'],
-                  _questions[_currentQuestionIndex]['optionB']),
-              _buildOptionButton(
-                  _questions[_currentQuestionIndex]['optionC'],
-                  _questions[_currentQuestionIndex]['optionC']),
-              _buildOptionButton(
-                  _questions[_currentQuestionIndex]['optionD'],
-                  _questions[_currentQuestionIndex]['optionD']),
-              SizedBox(height: 20),
-              // Timer display
-              Text(
-                "Time remaining: $_remainingTime seconds",
-                style: TextStyle(fontSize: 18, color: Colors.red),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _selectedAnswer == null ? null : _submitAnswer,
-                child: Text("Next"),
-              ),
-            ],
-          ],
+                    Text(
+                      "Time: $_remainingTime s",
+                      style: TextStyle(fontSize: 18, color: Color(0xFFC85E7E)),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
+                if (_isQuizCompleted)
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ViewResultsScreen(
+                            roomId: widget.roomId,
+                            userEmail: widget.userEmail,
+                            userName: '',
+                          ),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.lightBlue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                    ),
+                    child: Text(
+                      'View Results',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  )
+                else ...[
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Color(0xFFFA7B95), width: 4),
+                    ),
+                    child: Text(
+                      _questions[_currentQuestionIndex]['question'],
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Column(
+                    children: [
+                      _buildOptionButton(_questions[_currentQuestionIndex]['optionA'], _questions[_currentQuestionIndex]['optionA']),
+                      _buildOptionButton(_questions[_currentQuestionIndex]['optionB'], _questions[_currentQuestionIndex]['optionB']),
+                      _buildOptionButton(_questions[_currentQuestionIndex]['optionC'], _questions[_currentQuestionIndex]['optionC']),
+                      _buildOptionButton(_questions[_currentQuestionIndex]['optionD'], _questions[_currentQuestionIndex]['optionD']),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  SizedBox(
+                    width: screenWidth * 0.8,
+                    height: screenHeight * 0.08,
+                    child: ElevatedButton(
+                      onPressed: _selectedAnswer == null ? null : _submitAnswer,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF01CCCA),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                      ),
+                      child: Text(
+                        'Next',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );
