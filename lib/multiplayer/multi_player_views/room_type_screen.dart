@@ -1,107 +1,134 @@
 import 'package:flutter/material.dart';
+import '../../utils/background_color_utils.dart';
+import '../../utils/custom_app_bar.dart';
 import 'create_room_screen.dart';
 import 'join_room_screen.dart';
-import 'notification_screen.dart';
-import '../multi_player_model/notification_model.dart';
 
 class RoomTypeScreen extends StatelessWidget {
-  final String email;
+  final String email;  // Accepting the email passed from ModeSelectionScreen
   final int maxUsers;
 
   RoomTypeScreen({required this.email, this.maxUsers = 2});
 
   @override
   Widget build(BuildContext context) {
+    print('RoomTypeScreen: build called'); // Debug statement
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Multiplayer Options"),
-        actions: [
-          StreamBuilder<List<NotificationData>>(
-            stream: NotificationModel(email: email).getNotifications(),
-            builder: (context, snapshot) {
-              // Check if there's an error in loading notifications
-              if (snapshot.hasError) {
-                return IconButton(
-                  icon: Icon(Icons.notifications, color: Colors.black),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => NotificationScreen(email: email),
-                      ),
-                    );
-                  },
-                );
-              }
-
-              // Check the connection state
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return IconButton(
-                  icon: CircularProgressIndicator(),
-                  onPressed: null,
-                );
-              }
-
-              // Get notifications
-              var notifications = snapshot.data ?? [];
-              bool hasNotifications = notifications.isNotEmpty;
-              bool allViewed = notifications.every((notification) => notification.viewed); // Check if all notifications are viewed
-
-              return IconButton(
-                icon: Icon(
-                  Icons.notifications,
-                  color: hasNotifications && !allViewed ? Colors.red : Colors.black, // Change icon color logic
+        title: ShaderMask(
+          shaderCallback: (bounds) => LinearGradient(
+            colors: [
+              Color(0xFF04143C),
+              Color(0xFFFB7290),
+              Color(0xFFF7C6BF),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ).createShader(bounds),
+          child: Text(
+            'Trivia',
+            style: TextStyle(
+              fontSize: 54,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.75,
+              height: 68.84 / 54,
+              color: Colors.white,
+              shadows: [
+                Shadow(
+                  offset: Offset(2, 2),
+                  color: Colors.black,
+                  blurRadius: 5.0,
                 ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => NotificationScreen(email: email),
-                    ),
-                  );
-                },
-              );
-            },
+              ],
+            ),
           ),
-        ],
+        ),
+        centerTitle: true,
+        backgroundColor: Color(0xFFFFEDEC),
+        elevation: 4,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            print('Back button pressed'); // Debug statement
+            Navigator.pop(context, email);  // Passing email back when popping
+          },
+        ),
       ),
+      backgroundColor: BackgroundColorUtils.backgroundColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Choose Your Multiplayer Option:',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              'Choose Your\nMultiplayer Option:',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+              textAlign: TextAlign.center,
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 40),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white, backgroundColor: Color(0xFFE76A89),
+                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
               onPressed: () {
+                print('Navigating to CreateRoomScreen'); // Debug statement
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => CreateRoomScreen(
-                      email: email,
+                      email: email, // Passing email forward to CreateRoomScreen
                       maxUsers: maxUsers,
                     ),
                   ),
                 );
               },
-              child: Text("Create Room"),
+              child: Text(
+                'Create Room',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
             SizedBox(height: 20),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white, backgroundColor: Color(0xFFE76A89),
+                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
               onPressed: () {
+                print('Navigating to JoinRoomScreen'); // Debug statement
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => JoinRoomScreen(
-                      email: email,
+                      email: email, // Passing email forward to JoinRoomScreen
                       maxUsers: maxUsers,
                     ),
                   ),
                 );
               },
-              child: Text("Join Room"),
+              child: Text(
+                'Join Room',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         ),

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import '../utils/background_color_utils.dart';
 import '../utils/custom_app_bar.dart';
 import 'category_screen.dart';
-import '../multiplayer/multi_player_views/room_type_screen.dart'; // Import the RoomTypeScreen
-import 'settings/leaderboard_screen.dart'; // Import your leaderboard screen
-import 'settings/settings_screen.dart'; // Import your settings screen
+import '../multiplayer/multi_player_views/room_type_screen.dart';
+import 'settings/leaderboard_screen.dart';
+import 'settings/settings_screen.dart';
 
 class ModeSelectionScreen extends StatefulWidget {
-  final String email;
+  String email;  // Changed to String, as we need to pass email and update it later.
 
   ModeSelectionScreen({required this.email});
 
@@ -18,7 +18,6 @@ class ModeSelectionScreen extends StatefulWidget {
 class _ModeSelectionScreenState extends State<ModeSelectionScreen> {
   int _selectedIndex = 0;
 
-  // List of screens for bottom navigation
   late List<Widget> _screens;
 
   @override
@@ -26,16 +25,19 @@ class _ModeSelectionScreenState extends State<ModeSelectionScreen> {
     super.initState();
     _screens = [
       _buildModeSelectionScreen(),
-      LeaderBoardScreen(), // Pass email to LeaderboardScreen
-      SettingsScreen(), // Pass email to SettingsScreen
+      LeaderBoardScreen(),
+      SettingsScreen(),
     ];
+    print('ModeSelectionScreen: initState called'); // Debug statement
   }
 
   @override
   Widget build(BuildContext context) {
+    print('ModeSelectionScreen: build called'); // Debug statement
+
     return Scaffold(
-      appBar: customAppBar(showBackButton: false), // Add the custom AppBar
-      backgroundColor: BackgroundColorUtils.backgroundColor, // Set background color using BackgroundColorUtils
+      appBar: customAppBar(showBackButton: false),
+      backgroundColor: BackgroundColorUtils.backgroundColor,
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -59,25 +61,22 @@ class _ModeSelectionScreenState extends State<ModeSelectionScreen> {
     );
   }
 
-  // Function to handle bottom navigation bar tap
   void _onBottomNavTapped(int index) {
+    print('Bottom Navigation Tapped: $index'); // Debug statement
     setState(() {
       _selectedIndex = index;
     });
   }
 
-  // Function to build the mode selection screen
   Widget _buildModeSelectionScreen() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(16.0), // Padding for some spacing
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 20), // Space after the app bar
-
-            // "Ready!" Text
+            SizedBox(height: 20),
             Text(
               'Ready!',
               style: TextStyle(
@@ -86,23 +85,19 @@ class _ModeSelectionScreenState extends State<ModeSelectionScreen> {
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 20), // Space between "Ready!" and the next text
-
-            // "Choose your mode to play your game" Text in two lines
+            SizedBox(height: 20),
             Text(
               'Choose your mode\nto play your game',
               style: TextStyle(
                 fontSize: 18,
-                color: Color(0xFF7D7E80), // Hex color #7D7E80
+                color: Color(0xFF7D7E80),
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 40), // Add space before buttons
-
-            // Single Player Button
+            SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {
-                // Navigate to CategoryScreen for Single Player
+                print('Single Player button pressed'); // Debug statement
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -113,39 +108,45 @@ class _ModeSelectionScreenState extends State<ModeSelectionScreen> {
               child: Text(
                 "Single Player",
                 style: TextStyle(
-                  color: Colors.white, // White text color
-                  fontWeight: FontWeight.bold, // Bold text
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                   fontSize: 18,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF4C2F54), // Background color #4C2F54
+                backgroundColor: Color(0xFF4C2F54),
                 padding: EdgeInsets.symmetric(horizontal: 65, vertical: 15),
               ),
             ),
-            SizedBox(height: 20), // Add space between buttons
-
-            // Multiplayer Button
+            SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // Navigate to RoomTypeScreen for Multiplayer
-                Navigator.pushReplacement(
+              onPressed: () async {
+                print('Multi Player button pressed'); // Debug statement
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => RoomTypeScreen(email: widget.email),
                   ),
                 );
+
+                // Check if email is returned when back button is pressed.
+                if (result != null) {
+                  print('Returned email from RoomTypeScreen: $result');
+                  setState(() {
+                    widget.email = result;  // Update email after navigating back.
+                  });
+                }
               },
               child: Text(
                 "Multi player",
                 style: TextStyle(
-                  color: Colors.white, // White text color
-                  fontWeight: FontWeight.bold, // Bold text
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                   fontSize: 18,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF4C2F54), // Background color #4C2F54
+                backgroundColor: Color(0xFF4C2F54),
                 padding: EdgeInsets.symmetric(horizontal: 65, vertical: 15),
               ),
             ),
