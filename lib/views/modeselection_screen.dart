@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../utils/background_color_utils.dart';
+import '../utils/custom_app_bar.dart';
 import 'category_screen.dart';
 import '../multiplayer/multi_player_views/room_type_screen.dart'; // Import the RoomTypeScreen
 import 'settings/leaderboard_screen.dart'; // Import your leaderboard screen
@@ -32,6 +34,8 @@ class _ModeSelectionScreenState extends State<ModeSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: customAppBar(showBackButton: false), // Add the custom AppBar
+      backgroundColor: BackgroundColorUtils.backgroundColor, // Set background color using BackgroundColorUtils
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -64,40 +68,90 @@ class _ModeSelectionScreenState extends State<ModeSelectionScreen> {
 
   // Function to build the mode selection screen
   Widget _buildModeSelectionScreen() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          'Choose Your Mode:',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 20), // Add some space between the text and buttons
-        ElevatedButton(
-          onPressed: () {
-            // Navigate to CategoryScreen for Single Player
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CategoryScreen(email: widget.email),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0), // Padding for some spacing
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(height: 20), // Space after the app bar
+
+            // "Ready!" Text
+            Text(
+              'Ready!',
+              style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
               ),
-            );
-          },
-          child: Text("Single Player"),
-        ),
-        SizedBox(height: 20), // Add space between buttons
-        ElevatedButton(
-          onPressed: () {
-            // Navigate to RoomTypeScreen for Multiplayer
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RoomTypeScreen(email: widget.email),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 20), // Space between "Ready!" and the next text
+
+            // "Choose your mode to play your game" Text in two lines
+            Text(
+              'Choose your mode\nto play your game',
+              style: TextStyle(
+                fontSize: 18,
+                color: Color(0xFF7D7E80), // Hex color #7D7E80
               ),
-            );
-          },
-          child: Text("Multiplayer"),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 40), // Add space before buttons
+
+            // Single Player Button
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to CategoryScreen for Single Player
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CategoryScreen(email: widget.email),
+                  ),
+                );
+              },
+              child: Text(
+                "Single Player",
+                style: TextStyle(
+                  color: Colors.white, // White text color
+                  fontWeight: FontWeight.bold, // Bold text
+                  fontSize: 18,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF4C2F54), // Background color #4C2F54
+                padding: EdgeInsets.symmetric(horizontal: 65, vertical: 15),
+              ),
+            ),
+            SizedBox(height: 20), // Add space between buttons
+
+            // Multiplayer Button
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to RoomTypeScreen for Multiplayer
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RoomTypeScreen(email: widget.email),
+                  ),
+                );
+              },
+              child: Text(
+                "Multi player",
+                style: TextStyle(
+                  color: Colors.white, // White text color
+                  fontWeight: FontWeight.bold, // Bold text
+                  fontSize: 18,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF4C2F54), // Background color #4C2F54
+                padding: EdgeInsets.symmetric(horizontal: 65, vertical: 15),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
