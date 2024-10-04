@@ -125,8 +125,18 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
           key: _formKey,
           child: SingleChildScrollView( // Added to make it scrollable on smaller screens
             child: Column(
+
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  "Create Room",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 26),
                 // Room Name Label and TextField
                 Text(
                   "Room Name",

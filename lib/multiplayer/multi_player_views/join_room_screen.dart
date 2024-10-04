@@ -1,7 +1,8 @@
-// join_room_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart'; // For restricting input to integers
+import '../../utils/background_color_utils.dart';
+import '../../utils/custom_app_bar.dart';
 import 'waiting_screen.dart';
 
 class JoinRoomScreen extends StatefulWidget {
@@ -105,13 +106,11 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
 
         // Add user to the room
         await roomRef.update({
-          'users': FieldValue.arrayUnion([
-            {
-              'email': widget.email,
-              'name': userName,
-              'roomPoints': 0,
-            }
-          ]),
+          'users': FieldValue.arrayUnion([{
+            'email': widget.email,
+            'name': userName,
+            'roomPoints': 0,
+          }]),
           // Remove from invitedUsers if present
           'invitedUsers': FieldValue.arrayRemove([widget.email]),
         });
@@ -124,7 +123,8 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
               roomName: roomData['roomName'] ?? 'Unknown',
               roomId: roomId,
               maxUsers: maxUsers,
-              email: widget.email, members: [],
+              email: widget.email,
+              members: [],
             ),
           ),
         );
@@ -145,9 +145,8 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Join Room"),
-      ),
+      appBar: customAppBar(),  // Use the custom AppBar
+      backgroundColor: BackgroundColorUtils.backgroundColor,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: _isLoading
@@ -155,12 +154,24 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
             : Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,  // Aligns the text label to the left
             children: [
+              Text(
+                'Enter Room ID',  // Added text label
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 10),
               TextFormField(
                 controller: _roomIdController,
+                keyboardType: TextInputType.number,  // Restrict to integer input
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],  // Ensures only digits are entered
                 decoration: InputDecoration(
-                  labelText: 'Enter Room ID',
-                  border: OutlineInputBorder(),
+                  labelText: 'Room ID',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),  // Curved edges for the text field
+                  ),
+                  fillColor: Colors.white,  // Set background color to white
+                  filled: true,  // Enable the fillColor property
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -172,7 +183,20 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _joinRoom,
-                child: Text("Join Room"),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white, backgroundColor: Color(0xFFE76A89),
+                  padding: EdgeInsets.symmetric(horizontal: 150, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: Text(
+                  'Join Room',
+                  style: TextStyle(
+                    color: Colors.white,  // White text color
+                    fontWeight: FontWeight.bold,  // Bold text
+                  ),
+                ),
               ),
             ],
           ),
