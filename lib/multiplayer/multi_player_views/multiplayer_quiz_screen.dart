@@ -1,5 +1,7 @@
 import 'dart:async'; // Import Timer
 import 'package:flutter/material.dart';
+import '../../utils/background_color_utils.dart';
+import '../../utils/custom_app_bar.dart';
 import '../multi_player_controller/MultiplayerQuizController.dart';
 import 'ViewResultsScreen.dart';
 import '../../utils/roomdeletion_utils.dart'; // Import the room deletion utils for the dialog
@@ -181,9 +183,8 @@ class _MultiplayerQuizScreenState extends State<MultiplayerQuizScreen> {
     return WillPopScope(
       onWillPop: _onWillPop, // Override back button action
       child: Scaffold(
-        appBar: AppBar(
-          title: Text("Quiz"),
-        ),
+        appBar: customAppBar(),  // Use the custom AppBar
+        backgroundColor: BackgroundColorUtils.backgroundColor,
         body: _isLoading
             ? Center(child: CircularProgressIndicator())
             : _questions.isEmpty
