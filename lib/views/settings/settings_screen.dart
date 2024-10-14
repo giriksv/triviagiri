@@ -91,19 +91,19 @@ class SettingsScreen extends StatelessWidget {
                       //   },
                       // ),
 
-                      ListTile(
-                        leading: Icon(Icons.leaderboard), // Icon for Leader Board
-                        title: Text('Leader Board'),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LeaderBoardScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      Divider(), // Divider after Leader Board
+                      // ListTile(
+                      //   leading: Icon(Icons.leaderboard), // Icon for Leader Board
+                      //   title: Text('Leader Board'),
+                      //   onTap: () {
+                      //     Navigator.push(
+                      //       context,
+                      //       MaterialPageRoute(
+                      //         builder: (context) => LeaderBoardScreen(),
+                      //       ),
+                      //     );
+                      //   },
+                      // ),
+                      // Divider(), // Divider after Leader Board
 
                       ListTile(
                         leading: Icon(Icons.privacy_tip), // Icon for Privacy Policy
