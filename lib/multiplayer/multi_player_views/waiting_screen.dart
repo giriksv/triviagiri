@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
+import '../../utils/background_color_utils.dart';
+import '../../utils/custom_app_bar.dart';
 import '../../utils/roomdeletion_utils.dart'; // Import your room deletion utilities
 import 'multiplayer_quiz_screen.dart';
 import 'notification_screen.dart';
@@ -17,7 +19,8 @@ class WaitingScreen extends StatefulWidget {
     required this.roomName,
     required this.roomId,
     required this.members,
-    required this.maxUsers, required String email,
+    required this.maxUsers,
+    required String email,
   });
 
   @override
@@ -100,34 +103,18 @@ class _WaitingScreenState extends State<WaitingScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // Show the leave room dialog when back is pressed
         await showLeaveRoomDialog(
           context: context,
           userEmail: userEmail,
           roomId: widget.roomId,
           email: userEmail,
-          userName: '', // Use the email of the current user
+          userName: '',
         );
         return false; // Prevent default back navigation
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: Text("Waiting for Players"),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.notifications),
-              onPressed: () {
-                // Navigate to the NotificationScreen
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => NotificationScreen(email: userEmail),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
+        appBar: customAppBar(), // Use the custom AppBar
+        backgroundColor: BackgroundColorUtils.backgroundColor,
         body: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
               .collection('rooms')
@@ -158,54 +145,153 @@ class _WaitingScreenState extends State<WaitingScreen> {
             int membersNeeded = widget.maxUsers - currentUsers.length;
 
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Room: ${widget.roomName}',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              child: SingleChildScrollView(
+                child: Container(
+                  width: 300, // Reduced width for the main white container
+                  padding: EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15.0), // Curved edges
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 10.0,
+                        spreadRadius: 2.0,
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 20),
-                  Text(
-                    'Room ID: ${widget.roomId}',
-                    style: TextStyle(fontSize: 18),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Room information
+                      Container(
+                        padding: EdgeInsets.all(16.0),
+                        decoration: BoxDecoration(
+                          color: Color(0xFFFFEDEC), // #FFEDEC background color
+                          borderRadius: BorderRadius.circular(15.0), // Curved edges
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Room: ${widget.roomName}',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold, // Bold text
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'Room ID: ${widget.roomId}',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold, // Bold text
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'Category: ${category ?? "Not specified"}',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold, // Bold text
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'Room Size: ${widget.maxUsers}',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold, // Bold text
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 20),
+
+                      // Waiting details, GIF, and Send Invite button
+                      if (membersNeeded > 0)
+                        Text(
+                          'Waiting for $membersNeeded more players to join',
+                          style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic, color: Colors.blue),
+                        ),
+                      SizedBox(height: 20),
+
+                      // User List with Circular Avatars
+                      Column(
+                        children: currentUsers.map((user) {
+                          String name = user['name'];
+                          String firstLetter = name.isNotEmpty ? name[0] : '?'; // Handle empty names
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5.0),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Color(0xFFF98D9F), // Background color for avatar
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      firstLetter.toUpperCase(),
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 10), // Spacing between avatar and name
+                                Text(
+                                  name,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      SizedBox(height: 20),
+                      if (_isRoomFull)
+                        Text(
+                          'Game begins in $_countdown seconds...',
+                          style: TextStyle(fontSize: 18, color: Colors.red),
+                        ),
+                      SizedBox(height: 20),
+
+                      // GIF
+                      Center(
+                        child: Container(
+                          width: 100, // Adjust width as needed
+                          height: 100, // Adjust height as needed
+                          child: Image.asset('assets/gif/waitingscreen.gif'), // Ensure the path is correct
+                        ),
+                      ),
+                      SizedBox(height: 20),
+
+                      // Send Invite button
+                      ElevatedButton(
+                        onPressed: () {
+                          _openInviteDialog(invitedUsers);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green, // Green background color
+                        ),
+                        child: Text(
+                          'Send Invite',
+                          style: TextStyle(color: Colors.white), // White text color
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 20),
-                  Text(
-                    'Category: ${category ?? "Not specified"}', // Show category
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    'Room Size: ${widget.maxUsers}', // Show max users
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  SizedBox(height: 20),
-                  if (membersNeeded > 0)
-                    Text(
-                      'Waiting for $membersNeeded more players to join',
-                      style: TextStyle(fontSize: 18, color: Colors.blue),
-                    ),
-                  SizedBox(height: 20),
-                  Text(
-                    'Waiting for players to join...',
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  ...currentUsers.map((user) => Text(user['name'])).toList(),
-                  SizedBox(height: 20),
-                  if (_isRoomFull)
-                    Text(
-                      'Game begins in $_countdown seconds...',
-                      style: TextStyle(fontSize: 18, color: Colors.red),
-                    ),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      _openInviteDialog(invitedUsers);
-                    },
-                    child: Text('Send Invite'),
-                  ),
-                ],
+                ),
               ),
             );
           },
